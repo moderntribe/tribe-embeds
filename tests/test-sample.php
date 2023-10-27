@@ -2,7 +2,7 @@
 /**
  * Class SampleTest
  *
- * @package Tribe/Moose_Performance
+ * @package Tribe/Tribe_Embed
  */
 
 /**

@@ -2,7 +2,7 @@
 /**
  * PHPUnit bootstrap file
  *
- * @package Tribe/Moose_Performance
+ * @package Tribe/Tribe_Embed
  */
 
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
@@ -23,7 +23,7 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/moose_performance.php';
+	require dirname( dirname( __FILE__ ) ) . '/tribe_embed.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

@@ -1,7 +1,7 @@
 {
-  "name": "moose-performance",
+  "name": "tribe-embed",
   "version": "0.0.0",
-  "description": "Moose Performance",
+  "description": "Tribe Embed",
   "main": "index.js",
   "scripts": {
     "start": "wp-scripts start",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/moderntribe/moose-performance.git"
+    "url": "git+https://github.com/moderntribe/tribe-embed.git"
   },
   "author": "Modern Tribe <admin@tri.be>",
   "license": "GPL-2.0-or-later",
   "bugs": {
-    "url": "https://github.com/moderntribe/moose-performance/issues"
+    "url": "https://github.com/moderntribe/tribe-embed/issues"
   },
-  "homepage": "https://github.com/moderntribe/moose-performance#readme",
+  "homepage": "https://github.com/moderntribe/tribe-embed#readme",
   "devDependencies": {
     "@wordpress/scripts": "^26.15.0"
   }

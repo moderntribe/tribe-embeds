@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Tribe\Moose_Performance;
+namespace Tribe\Tribe_Embed;
 
 final class Core {
 
 	public const VERSION     = '0.0.0';
-	public const PLUGIN_NAME = 'moose-performance';
+	public const PLUGIN_NAME = 'tribe-embed';
 
 	private static self $instance;
 

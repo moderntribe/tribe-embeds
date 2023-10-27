@@ -1,10 +1,10 @@
 {
-    "name": "moderntribe/moose_performance",
+    "name": "moderntribe/tribe_embed",
     "description": "",
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Tribe\\Moose_Performance\\": "src/"
+            "Tribe\\Tribe_Embed\\": "src/"
         }
     },
     "require-dev": {

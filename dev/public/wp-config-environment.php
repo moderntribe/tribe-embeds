@@ -37,8 +37,8 @@ define( 'DB_PASSWORD', $database_config->creds->password );
 define( 'DB_HOST', $database_config->internal_connection->host );
 
 define( 'WP_ENVIRONMENT_TYPE', 'local' );
-define( 'WP_HOME', app_env( 'WP_HOME', 'https://moose-performance.lndo.site' ) );
-define( 'WP_SITEURL', app_env( 'WP_SITEURL', 'https://moose-performance.lndo.site/wp' ) );
+define( 'WP_HOME', app_env( 'WP_HOME', 'https://tribe-embed.lndo.site' ) );
+define( 'WP_SITEURL', app_env( 'WP_SITEURL', 'https://tribe-embed.lndo.site/wp' ) );
 define( 'WP_CONTENT_URL', sprintf( '%s/wp-content', WP_HOME ) );
 define( 'WP_CONTENT_DIR', __DIR__ . '/wp-content' );
 

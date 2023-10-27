@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
 /*
-Plugin Name:       Moose Performance
-Plugin URI:        https://github.com/moderntribe/moose-performance
-Description:       A Moose Performance Plugin.
+Plugin Name:       Tribe Embed
+Plugin URI:        https://github.com/moderntribe/tribe-embed
+Description:       A Tribe Embed Plugin.
 Version:           0.0.0
 Requires at least: 6.3
 Requires PHP:      8.0
@@ -15,7 +15,7 @@ Text Domain:       tribe
 Domain Path:       /languages
 */
 
-use Tribe\Moose_Performance\Core;
+use Tribe\Tribe_Embed\Core;
 
 require_once  'vendor/autoload.php';
 
@@ -23,9 +23,9 @@ register_activation_hook( __FILE__, [ Core::class, 'activate' ] );
 register_deactivation_hook( __FILE__, [ Core::class, 'deactivate' ] );
 
 add_action( 'plugins_loaded', static function (): void {
-	moose_performance_core()->init( __file__ );
+	tribe_embed_core()->init( __file__ );
 } );
 
-function moose_performance_core(): Core {
+function tribe_embed_core(): Core {
 	return Core::instance();
 }

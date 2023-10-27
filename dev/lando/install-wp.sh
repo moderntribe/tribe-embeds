@@ -26,11 +26,11 @@ function install_wp() {
   sleep 5
 
   wp core install \
-    --url=${WP_HOME:-https://moose-performance.lndo.site}/ \
-    --title="Moose Performance dev site" \
+    --url=${WP_HOME:-https://tribe-embed.lndo.site}/ \
+    --title="Tribe Embed dev site" \
     --admin_user=admin \
     --admin_password=password \
-    --admin_email=admin@moose-performance.lndo.site \
+    --admin_email=admin@tribe-embed.lndo.site \
     --skip-email
 }
 

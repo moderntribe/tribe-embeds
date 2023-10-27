@@ -1,7 +1,7 @@
 parameters:
 	level: 5
 	paths:
-		- moose-performance.php
+		- tribe-embed.php
 		- src/
 	excludePaths:
 		- vendor

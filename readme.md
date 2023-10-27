@@ -1,8 +1,8 @@
-# Moose Performance
+# Tribe Embed
 
 ## Getting Started
 
-This repo is setup to run either with lando by symlinking the `dev/public/wp-content/plugins/moose-performance` folder with the project root. To get started make sure you have lando installed and run lando start.  You should be able to reach the site at https://moose-performance.lndo.site/ and the login username is `admin` and password is `password`.
+This repo is setup to run either with lando by symlinking the `dev/public/wp-content/plugins/tribe-embed` folder with the project root. To get started make sure you have lando installed and run lando start.  You should be able to reach the site at https://tribe-embed.lndo.site/ and the login username is `admin` and password is `password`.
 
 ## Building Plugin
 

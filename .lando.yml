@@ -1,4 +1,4 @@
-name: moose-performance
+name: tribe-embed
 recipe: wordpress
 env_file:
   - dev/lando/.env
@@ -16,16 +16,16 @@ config:
 
 proxy:
   appserver_nginx:
-    - moose-performance.lndo.site
+    - tribe-embed.lndo.site
 
 services:
   appserver:
     xdebug: true
     overrides:
       volumes:
-        - './:/app/dev/public/wp-content/plugins/moose-performance/'
+        - './:/app/dev/public/wp-content/plugins/tribe-embed/'
       environment:
-        PHP_IDE_CONFIG: "serverName=moose-performance"
+        PHP_IDE_CONFIG: "serverName=tribe-embed"
         XDEBUG_SESSION_START: lando
 
   mailhog:
