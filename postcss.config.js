@@ -35,7 +35,7 @@ const plugins = [
 			stage: 0,
 			autoprefixer: { grid: true },
 			features: {
-				clamp: false,
+				'clamp': false,
 				'custom-properties': false,
 				'focus-visible-pseudo-class': false,
 				'focus-within-pseudo-class': false,
