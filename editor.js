@@ -1,2 +1,2 @@
 import './assets/js/editor.js';
-import './assets/css/editor.scss';
+import './assets/css/editor.pcss';

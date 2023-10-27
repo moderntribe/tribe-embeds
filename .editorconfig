@@ -1,7 +1,7 @@
-root = true
-
 # Base styles from WordPress Coding Standards
 # https://github.com/WordPress/wordpress-develop/blob/master/.editorconfig
+
+root = true
 
 [*]
 charset = utf-8
@@ -13,35 +13,28 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-[*.md]
-trim_trailing_whitespace = false
+[*.json]
+indent_style = tab
 
-# Indentation override for all JS under theme directory
-[assets/js/**/*.js]
+[*.js]
 indent_style = tab
 spaces_within_imports = true
 
-# Matches the exact files either package.json or .travis.yml
-[{package.json,.travis.yml}]
-indent_style = space
-indent_size = 2
+[*.md]
+trim_trailing_whitespace = false
 
-# Indentation override for all CSS under theme directory
-[wp-content/themes/core/**/**/*.pcss]
+[*.pcss]
 indent_style = tab
 
-[*.json]
-indent_style = space
-tab_width = 4
-
-[src/**.php]
+[*.php]
 indent_style = tab
+indent_size = 4
 ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = false
 ij_php_align_assignments = true
 ij_php_align_class_constants = true
-ij_php_align_group_field_declarations = true
+ij_php_align_group_field_declarations = false
 ij_php_align_inline_comments = false
 ij_php_align_key_value_pairs = true
 ij_php_align_multiline_array_initializer_expression = true
@@ -100,7 +93,7 @@ ij_php_phpdoc_keep_blank_lines = true
 ij_php_phpdoc_param_spaces_between_name_and_description = 1
 ij_php_phpdoc_param_spaces_between_tag_and_type = 1
 ij_php_phpdoc_param_spaces_between_type_and_name = 1
-ij_php_phpdoc_use_fqcn = false
+ij_php_phpdoc_use_fqcn = true
 ij_php_phpdoc_wrap_long_lines = true
 ij_php_space_after_colon = true
 ij_php_space_after_colon_in_return_type = true

@@ -1,28 +1,28 @@
 {
-    "name": "moderntribe/tribe_embed",
-    "description": "",
-    "type": "project",
-    "autoload": {
-        "psr-4": {
-            "Tribe\\Tribe_Embed\\": "src/"
-        }
-    },
-    "require-dev": {
-        "phpcompatibility/phpcompatibility-wp": "^2.1",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
-        "phpunit/phpunit": "^9.0",
-        "assertwell/wp-core-test-framework": "^0.2.0",
-        "phpstan/phpstan": "^1.10",
-        "php-stubs/wordpress-stubs": "^5.9",
-        "szepeviktor/phpstan-wordpress": "^1.1",
-        "phpstan/extension-installer": "^1.1",
-        "php-stubs/acf-pro-stubs": "^5.12",
-        "moderntribe/coding-standards": "^3.3"
-    },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "phpstan/extension-installer": true
-        }
-    }
+	"name": "moderntribe/tribe_embed",
+	"description": "",
+	"type": "project",
+	"autoload": {
+		"psr-4": {
+			"Tribe\\Tribe_Embed\\": "src/"
+		}
+	},
+	"require-dev": {
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+		"phpunit/phpunit": "^9.0",
+		"assertwell/wp-core-test-framework": "^0.2.0",
+		"phpstan/phpstan": "^1.10",
+		"php-stubs/wordpress-stubs": "^5.9",
+		"szepeviktor/phpstan-wordpress": "^1.1",
+		"phpstan/extension-installer": "^1.1",
+		"php-stubs/acf-pro-stubs": "^5.12",
+		"moderntribe/coding-standards": "^3.3"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"phpstan/extension-installer": true
+		}
+	}
 }

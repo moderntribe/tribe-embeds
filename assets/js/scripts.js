@@ -1,1 +1,1 @@
-console.log( 'scrips.js' )
+console.log( 'scrips.js' );

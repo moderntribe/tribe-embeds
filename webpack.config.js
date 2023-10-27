@@ -5,7 +5,7 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		index: './index.js',
-		editor: './editor.js'
+		editor: './editor.js',
 	},
 	output: {
 		path: path.resolve( process.cwd(), 'dist' ),
