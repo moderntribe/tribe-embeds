@@ -1,0 +1,42 @@
+name: moose-performance
+recipe: wordpress
+env_file:
+  - dev/lando/.env
+
+excludes:
+  - vendor
+  - .vscode
+  - .github
+
+config:
+  php: '8.0'
+  via: nginx
+  database: mysql
+  webroot: dev/public
+
+proxy:
+  appserver_nginx:
+    - moose-performance.lndo.site
+
+services:
+  appserver:
+    xdebug: true
+    overrides:
+      volumes:
+        - './:/app/dev/public/wp-content/plugins/moose-performance/'
+      environment:
+        PHP_IDE_CONFIG: "serverName=moose-performance"
+        XDEBUG_SESSION_START: lando
+
+  mailhog:
+    type: mailhog
+    portforward: true
+    hogfrom:
+      - appserver
+
+events:
+  post-start:
+    - appserver: composer install
+    - appserver: bash /app/dev/lando/install-wp.sh
+  post-destroy:
+    - appserver: rm -rf /app/dev/public/wp

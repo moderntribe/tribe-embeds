@@ -1,0 +1,24 @@
+{
+  "name": "moose-performance",
+  "version": "0.0.0",
+  "description": "Moose Performance",
+  "main": "index.js",
+  "scripts": {
+    "start": "wp-scripts start",
+    "build": "wp-scripts build",
+    "packages-update": "wp-scripts packages-update"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moderntribe/moose-performance.git"
+  },
+  "author": "Modern Tribe <admin@tri.be>",
+  "license": "GPL-2.0-or-later",
+  "bugs": {
+    "url": "https://github.com/moderntribe/moose-performance/issues"
+  },
+  "homepage": "https://github.com/moderntribe/moose-performance#readme",
+  "devDependencies": {
+    "@wordpress/scripts": "^26.15.0"
+  }
+}
