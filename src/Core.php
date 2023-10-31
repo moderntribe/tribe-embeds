@@ -80,49 +80,24 @@ final class Core {
 		// create a default video id, url and thumbnail url.
 		$video_id       = '';
 		$thumbnail_data = [];
-		$image_data     = [];
 
 		// grab the video id.
 		$video_url        = $block['attrs']['url'];
 		$parsed_video_url = parse_url( $video_url );
 
+		if ( ! in_array( $parsed_video_url['host'], YouTube::ALLOWED_HOSTS ) ) {
+			return $block_content;
+		}
+
 		// switch based on the host.
 		switch ( $parsed_video_url['host'] ) {
 			// for standard youtube URLs
-			case 'www.youtube.com':
-			case 'youtube.com':
-				// parse the query part of the URL into its arguments.
-				parse_str( $parsed_video_url['query'], $video_url_query_args );
-
-				// if we cannot find a youtube video id.
-				if ( empty( $video_url_query_args['v'] ) ) {
-					return $block_content;
-				}
-
-				// set the video id to the v query arg.
-				$video_id = $video_url_query_args['v'];
+			case in_array( $parsed_video_url['host'], YouTube::ALLOWED_HOSTS ):
+				$youtube = new YouTube( $parsed_video_url );
 
 				// get the youtube thumbnail url.
-				$thumbnail_data = $this->get_youtube_thumbnail_data( $video_id );
-				// $image_data     = [
-				// 	'mq',
-				// ]
-
-				// break out the switch.
-				break;
-
-			// for youtube short urls.
-			case 'youtu.be':
-				// if we have a path.
-				if ( empty( $parsed_video_url['path'] ) ) {
-					return $block_content;
-				}
-
-				// remove the preceeding slash.
-				$video_id = str_replace( '/', '', $parsed_video_url['path'] );
-
-				// get the youtube thumbnail url.
-				$thumbnail_data = $this->get_youtube_thumbnail_data( $video_id );
+				$video_id       = $youtube->get_video_id();
+				$thumbnail_data = $youtube->get_youtube_thumbnail_data( $video_id );
 
 				// break out the switch.
 				break;
@@ -224,7 +199,7 @@ final class Core {
 	 *
 	 * @param array An array of HTML elements allowed.
 	 */
-	public function allowed_innerblock_html() {
+	public function allowed_innerblock_html(): array {
 		/**
 		 * Return the allowed html
 		 * These are the elements in the rendered embed block for supported videos.
@@ -314,14 +289,13 @@ final class Core {
 	 */
 	public function add_video_thumbnail_markup( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
+		// TODO: conditionals
+
 		$max_res_image = end( $thumbnail_data );
 		$srcset        = [];
 		$sizes         = [ '(max-width: ' . $max_res_image['width'] . 'px) 100vw', $max_res_image['width'] . 'px' ];
 
-		// TODO: conditionals
-		// TODO: Probably also need to check for the block alignment settings and update based on that
-
-		foreach ( $thumbnail_data as $image => $data ) {
+		foreach ( $thumbnail_data as $data ) {
 			$srcset[] = $data['url'] . ' ' . $data['width'] . 'w';
 		}
 
@@ -396,16 +370,11 @@ final class Core {
 
 		// if we don't have a transient.
 		if ( false === $image_data ) {
-			// Initialize image data
-			$image_data = [
-				'mqdefault'     => [],
-				'hqdefault'     => [],
-				'sddefault'     => [],
-				'maxresdefault' => [],
-			];
+			// Initialize image data array
+			$image_data = [];
 
-			foreach ( $image_data as $path => $url ) {
-				$location  = 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/' . $path . '.jpg';
+			foreach ( YouTube::IMAGE_SIZES as $resolution ) {
+				$location  = YouTube::BASE_URL . esc_attr( $video_id ) . '/' . $resolution . '.jpg';
 				$image_url = wp_remote_get( $location );
 
 				// if the request to the image doesn't error and returns a http 200 response code.
@@ -418,7 +387,7 @@ final class Core {
 				$height     = $image_size[1];
 
 				// set the image data
-				$image_data[ $path ] = [
+				$image_data[ $resolution ] = [
 					'url'    => $location,
 					'width'  => $width,
 					'height' => $height,
@@ -532,10 +501,6 @@ final class Core {
 
 
 	private function __clone() {
-	}/* Return the youtube video thumbnail url.
-	*
-	* @param string  $video_id The ID of the video.
-	* @return string $url      The URL of the thumbnail or an empty string if no URL found.
-	*/
+	}
 
 }
