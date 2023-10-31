@@ -79,8 +79,8 @@ final class Core {
 
 		// create a default video id, url and thumbnail url.
 		$video_id       = '';
-		$thumbnail_url  = '';
-		$thumbnail_urls = [];
+		$thumbnail_data = [];
+		$image_data     = [];
 
 		// grab the video id.
 		$video_url        = $block['attrs']['url'];
@@ -103,8 +103,10 @@ final class Core {
 				$video_id = $video_url_query_args['v'];
 
 				// get the youtube thumbnail url.
-				$thumbnail_urls = $this->get_youtube_thumbnail_url( $video_id );
-				$thumbnail_url  = $thumbnail_urls['maxresdefault'];
+				$thumbnail_data = $this->get_youtube_thumbnail_data( $video_id );
+				// $image_data     = [
+				// 	'mq',
+				// ]
 
 				// break out the switch.
 				break;
@@ -120,45 +122,44 @@ final class Core {
 				$video_id = str_replace( '/', '', $parsed_video_url['path'] );
 
 				// get the youtube thumbnail url.
-				$thumbnail_urls = $this->get_youtube_thumbnail_url( $video_id );
-				$thumbnail_url  = $thumbnail_urls['maxresdefault'];
+				$thumbnail_data = $this->get_youtube_thumbnail_data( $video_id );
 
 				// break out the switch.
 				break;
 
-			// for vimeo urls.
-			case 'vimeo.com':
-			case 'www.vimeo.com':
-				// if we have a path.
-				if ( empty( $parsed_video_url['path'] ) ) {
-					return $block_content;
-				}
+			// // for vimeo urls.
+			// case 'vimeo.com':
+			// case 'www.vimeo.com':
+			// 	// if we have a path.
+			// 	if ( empty( $parsed_video_url['path'] ) ) {
+			// 		return $block_content;
+			// 	}
 
-				// remove the preceeding slash.
-				$video_id = str_replace( '/', '', $parsed_video_url['path'] );
+			// 	// remove the preceeding slash.
+			// 	$video_id = str_replace( '/', '', $parsed_video_url['path'] );
 
-				// get the vimeo thumbnail url for this video.
-				$thumbnail_url = $this->get_vimeo_video_thumbnail_url( $video_id );
+			// 	// get the vimeo thumbnail url for this video.
+			// 	$thumbnail_url = $this->get_vimeo_video_thumbnail_url( $video_id );
 
-				// break out the switch.
-				break;
+			// 	// break out the switch.
+			// 	break;
 
-			// for vimeo urls.
-			case 'www.dailymotion.com':
-			case 'dailymotion.com':
-				// if we have a path.
-				if ( empty( $parsed_video_url['path'] ) ) {
-					return $block_content;
-				}
+			// // for vimeo urls.
+			// case 'www.dailymotion.com':
+			// case 'dailymotion.com':
+			// 	// if we have a path.
+			// 	if ( empty( $parsed_video_url['path'] ) ) {
+			// 		return $block_content;
+			// 	}
 
-				// remove the preceeding slash.
-				$video_id = str_replace( '/video/', '', $parsed_video_url['path'] );
+			// 	// remove the preceeding slash.
+			// 	$video_id = str_replace( '/video/', '', $parsed_video_url['path'] );
 
-				// get the vimeo thumbnail url for this video.
-				$thumbnail_url = $this->get_dailymotion_video_thumbnail_url( $video_id );
+			// 	// get the vimeo thumbnail url for this video.
+			// 	$thumbnail_url = $this->get_dailymotion_video_thumbnail_url( $video_id );
 
-				// break out the switch.
-				break;
+			// 	// break out the switch.
+			// 	break;
 		}
 
 		// if we don't have a video id.
@@ -167,7 +168,7 @@ final class Core {
 		}
 
 		// if we don't have a video thumbnail url.
-		if ( '' === $thumbnail_url ) {
+		if ( count( $thumbnail_data ) === 0 ) {
 			return $block_content;
 		}
 
@@ -194,7 +195,7 @@ final class Core {
 		}
 
 		// allow the classes to be filtered.
-		$wrapper_classes = apply_filters( '', $wrapper_classes, $block, $video_id, $thumbnail_url );
+		$wrapper_classes = apply_filters( '', $wrapper_classes, $block, $video_id, $thumbnail_data );
 
 		// buffer the output as we need to return not echo.
 		ob_start();
@@ -211,7 +212,7 @@ final class Core {
 		 * @hooked hd_bvce_close_markup_figure_element - 40
 		 * @hooked add_original_embed_template - 50
 		 */
-		do_action( 'video_thumbnail_markup', $block, $video_id, $thumbnail_urls, $wrapper_classes );
+		do_action( 'video_thumbnail_markup', $block, $video_id, $thumbnail_data, $wrapper_classes );
 
 		// return the new block markup.
 		return ob_get_clean();
@@ -277,10 +278,10 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_urls  The URL of the video thumbnail.
+	 * @param string $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
-	public function open_markup_figure_element( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
+	public function open_markup_figure_element( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
 		?>
 <figure class="<?php echo esc_attr( implode( ' ', $wrapper_classes ) ); ?>"
@@ -293,10 +294,10 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_urls  The URL of the video thumbnail.
+	 * @param string $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
-	public function add_video_play_button( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
+	public function add_video_play_button( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
 		?>
 	<button class="play-button" aria-label="<?php echo __( 'Play Video', 'tribe' ) ?>"></button>
@@ -308,18 +309,15 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_urls  The URL of the video thumbnail.
+	 * @param string $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
-	public function add_video_thumbnail_markup( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
-
-		$image_size = getimagesize( $thumbnail_urls['maxresdefault'] );
-		$width      = $image_size[0];
-		$height     = $image_size[1];
+	public function add_video_thumbnail_markup( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
 		?>
-	<img loading="lazy" width=<?php echo esc_attr( $width ); ?> height=<?php echo esc_attr( $height ); ?>
-		class="tribe-embed__thumbnail" alt="" src="<?php echo esc_url( $thumbnail_urls['maxresdefault'] ); ?>" />
+	<img loading="lazy" width=<?php echo $thumbnail_data['maxresdefault']['width']; ?>
+		height=<?php echo $thumbnail_data['maxresdefault']['height']; ?> class="tribe-embed__thumbnail" alt=""
+		src="<?php echo $thumbnail_data['maxresdefault']['url']; ?>" />
 		<?php
 	}
 
@@ -328,10 +326,10 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_urls  The URL of the video thumbnail.
+	 * @param string $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
-	public function close_markup_figure_element( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
+	public function close_markup_figure_element( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
 		?>
 </figure>
@@ -344,10 +342,10 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_urls  The URL of the video thumbnail.
+	 * @param string $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
-	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
+	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
 		?>
 <template id=tribe-embed-embed-html-<?php echo esc_attr( $video_id ); ?>">
@@ -355,7 +353,6 @@ final class Core {
 </template>
 		<?php
 	}
-
 
 	/**
 	 * Any code you want to run when deactivating the plugin.
@@ -371,7 +368,10 @@ final class Core {
 		return;
 	}
 
-	private function get_youtube_thumbnail_url( string $video_id = '' ): array {
+	/**
+	 * Accepts a video id and returns an array of thumbnail data
+	 */
+	private function get_youtube_thumbnail_data( string $video_id = '' ): array {
 
 		// if we have no video id.
 		if ( '' === $video_id ) {
@@ -379,37 +379,46 @@ final class Core {
 		}
 
 		// get the URL from the transient.
-		$image_url = get_transient( 'tribe-embed_' . $video_id );
-
-		$image_urls = [
-		'mqdefault'     => 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/mqdefault.jpg',
-		'hqdefault'     => 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/hqdefault.jpg',
-		'sddefault'     => 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/sddefault.jpg',
-		'maxresdefault' => 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/maxresdefault.jpg',
-		];
+		// $image_urls = get_transient( 'tribe-embed_' . $video_id );
+		$image_data = false;
 
 		// if we don't have a transient.
-		if ( false === $image_url ) {
-			// set the normal image url.
-			$image_url = 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/mqdefault.jpg';
+		if ( false === $image_data ) {
+			// Initialize image data
+			$image_data = [
+				'mqdefault'     => [],
+				'hqdefault'     => [],
+				'sddefault'     => [],
+				'maxresdefault' => [],
+			];
 
-			// check if there is a max res image available.
-			$max_res_img = wp_remote_get(
-				'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/maxresdefault.jpg'
-			);
+			foreach ( $image_data as $path => $url ) {
+				$location  = 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/' . $path . '.jpg';
+				$image_url = wp_remote_get( $location );
 
-			// if the request to the hi res image doesn't errors and returns a http 200 response code.
-			if ( ( ! is_wp_error( $max_res_img ) ) && ( 200 === wp_remote_retrieve_response_code( $max_res_img ) ) ) {
-				// set the name as max res.
-				$image_url = 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/maxresdefault.jpg';
+				// if the request to the image doesn't error and returns a http 200 response code.
+				if ( ( is_wp_error( $image_url ) ) || ( 200 !== wp_remote_retrieve_response_code( $image_url ) ) ) {
+					continue;
+				}
+
+				$image_size = getimagesize( $location );
+				$width      = $image_size[0];
+				$height     = $image_size[1];
+
+				// set the image data
+				$image_data[ $path ] = [
+					'url'    => $location,
+					'width'  => $width,
+					'height' => $height,
+				];
 			}
 
 			// set the transient, storing the image url.
-			set_transient( 'tribe-embed_' . $video_id, $image_url, DAY_IN_SECONDS );
+			set_transient( 'tribe-embed_' . $video_id, $image_data, DAY_IN_SECONDS );
 		}
 
-		// return the thumbnail url.
-		return apply_filters( 'tribe-embed_youtube_video_thumbnail_url', $image_urls, $video_id );
+		// return the thumbnail urls.
+		return apply_filters( 'tribe-embed_youtube_video_thumbnail_data', $image_data, $video_id );
 	}
 
 
