@@ -39,4 +39,4 @@ events:
     - appserver: composer install
     - appserver: bash /app/dev/lando/install-wp.sh
   post-destroy:
-    - appserver: rm -rf /app/dev/public/wp
+    - find ./dev/public/ -type f
