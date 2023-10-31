@@ -278,7 +278,7 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_data  The URL of the video thumbnail.
+	 * @param array $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function open_markup_figure_element( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
@@ -294,7 +294,7 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_data  The URL of the video thumbnail.
+	 * @param array $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function add_video_play_button( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
@@ -309,15 +309,27 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_data  The URL of the video thumbnail.
+	 * @param array $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function add_video_thumbnail_markup( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
+		$max_res_image = end( $thumbnail_data );
+		$srcset        = [];
+		$sizes         = [ '(max-width: ' . $max_res_image['width'] . 'px) 100vw', $max_res_image['width'] . 'px' ];
+
+		// TODO: conditionals
+		// TODO: Probably also need to check for the block alignment settings and update based on that
+
+		foreach ( $thumbnail_data as $image => $data ) {
+			$srcset[] = $data['url'] . ' ' . $data['width'] . 'w';
+		}
+
 		?>
 	<img loading="lazy" width=<?php echo $thumbnail_data['maxresdefault']['width']; ?>
 		height=<?php echo $thumbnail_data['maxresdefault']['height']; ?> class="tribe-embed__thumbnail" alt=""
-		src="<?php echo $thumbnail_data['maxresdefault']['url']; ?>" />
+		src="<?php echo $thumbnail_data['maxresdefault']['url']; ?>" srcset="<?php echo implode( ',', $srcset ) ?>"
+		sizes="<?php echo implode( ',', $sizes ) ?>" />
 		<?php
 	}
 
@@ -326,7 +338,7 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_data  The URL of the video thumbnail.
+	 * @param array $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function close_markup_figure_element( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
@@ -342,7 +354,7 @@ final class Core {
 	 *
 	 * @param array  $block           The block array.
 	 * @param string $video_id        The ID of the embedded video.
-	 * @param string $thumbnail_data  The URL of the video thumbnail.
+	 * @param array $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
