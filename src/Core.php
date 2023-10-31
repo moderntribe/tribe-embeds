@@ -2,6 +2,9 @@
 
 namespace Tribe\Tribe_Embed;
 
+use Tribe\Tribe_Embed\Providers\Dailymotion;
+use Tribe\Tribe_Embed\Providers\Vimeo;
+use Tribe\Tribe_Embed\Providers\YouTube;
 use WP_Block;
 
 final class Core {
@@ -78,6 +81,8 @@ final class Core {
 		}
 
 		// create a default video id, url and thumbnail url.
+		$provider       = null;
+		$allowed_hosts  = array_merge( YouTube::ALLOWED_HOSTS, Vimeo::ALLOWED_HOSTS, Dailymotion::ALLOWED_HOSTS );
 		$video_id       = '';
 		$thumbnail_data = [];
 
@@ -85,57 +90,32 @@ final class Core {
 		$video_url        = $block['attrs']['url'];
 		$parsed_video_url = parse_url( $video_url );
 
-		if ( ! in_array( $parsed_video_url['host'], YouTube::ALLOWED_HOSTS ) ) {
+		// Only continue for allowed providers
+		if ( ! in_array( $parsed_video_url['host'], $allowed_hosts ) ) {
 			return $block_content;
 		}
 
 		// switch based on the host.
 		switch ( $parsed_video_url['host'] ) {
-			// for standard youtube URLs
+			// for youtube urls
 			case in_array( $parsed_video_url['host'], YouTube::ALLOWED_HOSTS ):
-				$youtube = new YouTube( $parsed_video_url );
-
-				// get the youtube thumbnail url.
-				$video_id       = $youtube->get_video_id();
-				$thumbnail_data = $youtube->get_youtube_thumbnail_data( $video_id );
-
-				// break out the switch.
+				$provider = new YouTube( $parsed_video_url );
 				break;
 
-			// // for vimeo urls.
-			// case 'vimeo.com':
-			// case 'www.vimeo.com':
-			// 	// if we have a path.
-			// 	if ( empty( $parsed_video_url['path'] ) ) {
-			// 		return $block_content;
-			// 	}
+			// for vimeo urls.
+			case in_array( $parsed_video_url['host'], Vimeo::ALLOWED_HOSTS ):
+				$provider = new Vimeo( $parsed_video_url );
+				break;
 
-			// 	// remove the preceeding slash.
-			// 	$video_id = str_replace( '/', '', $parsed_video_url['path'] );
-
-			// 	// get the vimeo thumbnail url for this video.
-			// 	$thumbnail_url = $this->get_vimeo_video_thumbnail_url( $video_id );
-
-			// 	// break out the switch.
-			// 	break;
-
-			// // for vimeo urls.
-			// case 'www.dailymotion.com':
-			// case 'dailymotion.com':
-			// 	// if we have a path.
-			// 	if ( empty( $parsed_video_url['path'] ) ) {
-			// 		return $block_content;
-			// 	}
-
-			// 	// remove the preceeding slash.
-			// 	$video_id = str_replace( '/video/', '', $parsed_video_url['path'] );
-
-			// 	// get the vimeo thumbnail url for this video.
-			// 	$thumbnail_url = $this->get_dailymotion_video_thumbnail_url( $video_id );
-
-			// 	// break out the switch.
-			// 	break;
+			// for dailymotion urls.
+			case in_array( $parsed_video_url['host'], Dailymotion::ALLOWED_HOSTS ):
+				$provider = new Dailymotion( $parsed_video_url );
+				break;
 		}
+
+		// get the youtube thumbnail url.
+		$video_id       = $provider->get_video_id();
+		$thumbnail_data = $provider->get_thumbnail_data( $video_id );
 
 		// if we don't have a video id.
 		if ( '' === $video_id ) {
@@ -353,152 +333,6 @@ final class Core {
 	public static function deactivate(): void {
 		return;
 	}
-
-	/**
-	 * Accepts a video id and returns an array of thumbnail data
-	 */
-	private function get_youtube_thumbnail_data( string $video_id = '' ): array {
-
-		// if we have no video id.
-		if ( '' === $video_id ) {
-			return '';
-		}
-
-		// get the URL from the transient.
-		// $image_urls = get_transient( 'tribe-embed_' . $video_id );
-		$image_data = false;
-
-		// if we don't have a transient.
-		if ( false === $image_data ) {
-			// Initialize image data array
-			$image_data = [];
-
-			foreach ( YouTube::IMAGE_SIZES as $resolution ) {
-				$location  = YouTube::BASE_URL . esc_attr( $video_id ) . '/' . $resolution . '.jpg';
-				$image_url = wp_remote_get( $location );
-
-				// if the request to the image doesn't error and returns a http 200 response code.
-				if ( ( is_wp_error( $image_url ) ) || ( 200 !== wp_remote_retrieve_response_code( $image_url ) ) ) {
-					continue;
-				}
-
-				$image_size = getimagesize( $location );
-				$width      = $image_size[0];
-				$height     = $image_size[1];
-
-				// set the image data
-				$image_data[ $resolution ] = [
-					'url'    => $location,
-					'width'  => $width,
-					'height' => $height,
-				];
-			}
-
-			// set the transient, storing the image url.
-			set_transient( 'tribe-embed_' . $video_id, $image_data, DAY_IN_SECONDS );
-		}
-
-		// return the thumbnail urls.
-		return apply_filters( 'tribe-embed_youtube_video_thumbnail_data', $image_data, $video_id );
-	}
-
-
-	/**
-	 * TODO: Fetch all image sizes
-	 * Return the vimeo video thumbnail url.
-	 *
-	 * @param string  $video_id The ID of the video.
-	 *
-	 * @return string $url      The URL of the thumbnail or an empty string if no URL found.
-	 */
-	private function get_vimeo_video_thumbnail_url( string $video_id = '' ): string {
-
-		// if we have no video id.
-		if ( '' === $video_id ) {
-			return '';
-		}
-
-		// get the URL from the transient.
-		$image_url = get_transient( 'tribe-embed_' . $video_id );
-
-		// if we don't have a transient.
-		if ( false === $image_url ) {
-			// get the video details from the api.
-			$video_details = wp_remote_get(
-				'https://vimeo.com/api/v2/video/' . esc_attr( $video_id ) . '.json'
-			);
-
-			// if the request to the hi res image errors or returns anything other than a http 200 response code.
-			if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
-				return '';
-			}
-
-			// grab the body of the response.
-			$video_details = json_decode(
-				wp_remote_retrieve_body(
-					$video_details
-				)
-			);
-
-			// get the image url from the json.
-			$image_url = $video_details[0]->thumbnail_large;
-
-			// set the transient, storing the image url.
-			set_transient( 'tribe-embed_' . $video_id, $image_url, DAY_IN_SECONDS );
-		}
-
-		// return the url.
-		return apply_filters( 'tribe-embed_vimeo_video_thumbnail_url', $image_url, $video_id );
-	}
-
-
-	/**
-	 * TODO: Fetch all image sizes
-	 * Return the dailymotion video thumbnail url.
-	 *
-	 * @param string  $video_id The ID of the video.
-	 *
-	 * @return string $url      The URL of the thumbnail or an empty string if no URL found.
-	 */
-	private function get_dailymotion_video_thumbnail_url( string $video_id = '' ): string {
-
-		// if we have no video id.
-		if ( '' === $video_id ) {
-			return '';
-		}
-
-		// get the URL from the transient.
-		$image_url = get_transient( 'tribe-embed_' . $video_id );
-
-		// if we don't have a transient.
-		if ( false === $image_url ) {
-			// get the video details from the api.
-			$video_details = wp_remote_get( 'https://api.dailymotion.com/video/' . $video_id . '?fields=thumbnail_url' );
-
-			// if the request to the hi res image errors or returns anything other than a http 200 response code.
-			if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
-				return '';
-			}
-
-			// grab the body of the response.
-			$video_details = json_decode(
-				wp_remote_retrieve_body(
-					$video_details
-				)
-			);
-
-			// get the image url from the json.
-			$image_url = $video_details->thumbnail_url;
-
-			// set the transient, storing the image url.
-			set_transient( 'tribe-embed_' . $video_id, $image_url, DAY_IN_SECONDS );
-		}
-
-		// return the url.
-		return apply_filters( 'tribe-embed_dailymotion_video_thumbnail_url', $image_url, $video_id );
-	}
-
-
 
 	private function __clone() {
 	}

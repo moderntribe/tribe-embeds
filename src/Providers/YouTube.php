@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Tribe\Tribe_Embed;
+namespace Tribe\Tribe_Embed\Providers;
 
 final class YouTube {
 
@@ -40,7 +40,7 @@ final class YouTube {
 	/**
 	 * Accepts a video id and returns an array of thumbnail data
 	 */
-	public function get_youtube_thumbnail_data(): array {
+	public function get_thumbnail_data(): array {
 
 		// if we have no video id.
 		if ( '' === $this->get_video_id() ) {
@@ -116,7 +116,7 @@ final class YouTube {
 				}
 
 				// remove the preceeding slash.
-				$this->video_id = str_replace( '/', '', $this->video_url['path'] );
+				return str_replace( '/', '', $this->video_url['path'] );
 
 				break;
 		}
