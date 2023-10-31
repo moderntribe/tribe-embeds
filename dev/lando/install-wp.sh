@@ -19,10 +19,10 @@ function download_wp() {
     --force
 
   wp config create \
-    --dbname=${DB_NAME:wordpress} \
-    --dbuser=${DB_USER:wordpress} \
-    --dbpass=${DB_PASSWORD:wordpress} \
-    --dbhost=${DB_HOST:database}
+    --dbname=${DB_NAME:-wordpress} \
+    --dbuser=${DB_USER:-wordpress} \
+    --dbpass=${DB_PASSWORD:-wordpress} \
+    --dbhost=${DB_HOST:-database}
 }
 
 function install_wp() {
