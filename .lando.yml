@@ -38,3 +38,5 @@ events:
   post-start:
     - appserver: composer install
     - appserver: bash /app/dev/lando/install-wp.sh
+  post-destroy:
+    - appserver: rm ./dev/public/wp-config.php
