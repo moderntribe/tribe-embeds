@@ -122,7 +122,7 @@ final class Core {
 			return $block_content;
 		}
 
-		// if we don't have a video thumbnail url.
+		// if we don't have any video thumbnails.
 		if ( count( $thumbnail_data ) === 0 ) {
 			return $block_content;
 		}
