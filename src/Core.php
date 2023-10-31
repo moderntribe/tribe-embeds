@@ -174,7 +174,7 @@ final class Core {
 		// create an array of classes to add to the placeholder image wrapper.
 		$wrapper_classes = [
 			'wp-block-image',
-			'hd-bcve-wrapper',
+			'tribe-embed__wrapper',
 			'is--' . $block['attrs']['providerNameSlug'],
 		];
 
@@ -299,7 +299,7 @@ final class Core {
 	public function add_video_play_button( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
 
 		?>
-	<div class="play-button"></div>
+	<button class="play-button" aria-label="<?php echo __( 'Play Video', 'tribe' ) ?>"></button>
 		<?php
 	}
 
@@ -319,7 +319,7 @@ final class Core {
 
 		?>
 	<img loading="lazy" width=<?php echo esc_attr( $width ); ?> height=<?php echo esc_attr( $height ); ?>
-		class="hd-bcve-thumbnail" alt="" src="<?php echo esc_url( $thumbnail_urls['maxresdefault'] ); ?>" />
+		class="tribe-embed__thumbnail" alt="" src="<?php echo esc_url( $thumbnail_urls['maxresdefault'] ); ?>" />
 		<?php
 	}
 
@@ -350,7 +350,7 @@ final class Core {
 	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_urls, array $wrapper_classes ): void {
 
 		?>
-<template id="hd-bcve-embed-html-<?php echo esc_attr( $video_id ); ?>">
+<template id=tribe-embed-embed-html-<?php echo esc_attr( $video_id ); ?>">
 		<?php echo wp_kses( $block['innerHTML'], $this->allowed_innerblock_html() ); ?>
 </template>
 		<?php
@@ -379,7 +379,7 @@ final class Core {
 		}
 
 		// get the URL from the transient.
-		$image_url = get_transient( 'hd_bcve_' . $video_id );
+		$image_url = get_transient( 'tribe-embed_' . $video_id );
 
 		$image_urls = [
 		'mqdefault'     => 'https://img.youtube.com/vi/' . esc_attr( $video_id ) . '/mqdefault.jpg',
@@ -405,11 +405,11 @@ final class Core {
 			}
 
 			// set the transient, storing the image url.
-			set_transient( 'hd_bcve_' . $video_id, $image_url, DAY_IN_SECONDS );
+			set_transient( 'tribe-embed_' . $video_id, $image_url, DAY_IN_SECONDS );
 		}
 
 		// return the thumbnail url.
-		return apply_filters( 'hd_bcve_youtube_video_thumbnail_url', $image_urls, $video_id );
+		return apply_filters( 'tribe-embed_youtube_video_thumbnail_url', $image_urls, $video_id );
 	}
 
 
@@ -429,7 +429,7 @@ final class Core {
 		}
 
 		// get the URL from the transient.
-		$image_url = get_transient( 'hd_bcve_' . $video_id );
+		$image_url = get_transient( 'tribe-embed_' . $video_id );
 
 		// if we don't have a transient.
 		if ( false === $image_url ) {
@@ -454,11 +454,11 @@ final class Core {
 			$image_url = $video_details[0]->thumbnail_large;
 
 			// set the transient, storing the image url.
-			set_transient( 'hd_bcve_' . $video_id, $image_url, DAY_IN_SECONDS );
+			set_transient( 'tribe-embed_' . $video_id, $image_url, DAY_IN_SECONDS );
 		}
 
 		// return the url.
-		return apply_filters( 'hd_bcve_vimeo_video_thumbnail_url', $image_url, $video_id );
+		return apply_filters( 'tribe-embed_vimeo_video_thumbnail_url', $image_url, $video_id );
 	}
 
 
@@ -478,7 +478,7 @@ final class Core {
 		}
 
 		// get the URL from the transient.
-		$image_url = get_transient( 'hd_bcve_' . $video_id );
+		$image_url = get_transient( 'tribe-embed_' . $video_id );
 
 		// if we don't have a transient.
 		if ( false === $image_url ) {
@@ -501,11 +501,11 @@ final class Core {
 			$image_url = $video_details->thumbnail_url;
 
 			// set the transient, storing the image url.
-			set_transient( 'hd_bcve_' . $video_id, $image_url, DAY_IN_SECONDS );
+			set_transient( 'tribe-embed_' . $video_id, $image_url, DAY_IN_SECONDS );
 		}
 
 		// return the url.
-		return apply_filters( 'hd_bcve_dailymotion_video_thumbnail_url', $image_url, $video_id );
+		return apply_filters( 'tribe-embed_dailymotion_video_thumbnail_url', $image_url, $video_id );
 	}
 
 
