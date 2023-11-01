@@ -40,8 +40,7 @@ final class Vimeo {
 	}
 
 	/**
-	 * TODO: Fetch all image sizes
-	 * Return the vimeo video thumbnail url.
+	 * Return the vimeo video thumbnail urls.
 	 */
 	public function get_thumbnail_data(): array {
 
@@ -51,8 +50,7 @@ final class Vimeo {
 		}
 
 		// get the URL from the transient.
-		// $image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
-		$image_data = false;
+		$image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
 
 		// if we don't have a transient.
 		if ( false === $image_data ) {
@@ -69,7 +67,7 @@ final class Vimeo {
 			}
 
 			// grab the body of the response.
-			$video_details = json_decode(
+			$response_body = json_decode(
 				wp_remote_retrieve_body(
 					$video_details
 				)
@@ -77,7 +75,7 @@ final class Vimeo {
 
 			foreach ( self::IMAGE_SIZES as $resolution ) {
 				// get the image url from the json.
-				$image_url = $video_details[0]->$resolution;
+				$image_url = $response_body[0]->$resolution;
 
 				$image_size = getimagesize( $image_url );
 				$width      = $image_size[0];
