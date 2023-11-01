@@ -280,10 +280,9 @@ final class Core {
 		}
 
 		?>
-	<img loading="lazy" width=<?php echo $thumbnail_data['maxresdefault']['width']; ?>
-		height=<?php echo $thumbnail_data['maxresdefault']['height']; ?> class="tribe-embed__thumbnail" alt=""
-		src="<?php echo $thumbnail_data['maxresdefault']['url']; ?>" srcset="<?php echo implode( ',', $srcset ) ?>"
-		sizes="<?php echo implode( ',', $sizes ) ?>" />
+	<img loading="lazy" width=<?php echo $max_res_image['width']; ?> height=<?php echo $max_res_image['height']; ?>
+		class="tribe-embed__thumbnail" alt="" src="<?php echo $max_res_image['url']; ?>"
+		srcset="<?php echo implode( ',', $srcset ) ?>" sizes="<?php echo implode( ',', $sizes ) ?>" />
 		<?php
 	}
 

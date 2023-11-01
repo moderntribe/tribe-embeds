@@ -48,8 +48,7 @@ final class YouTube {
 		}
 
 		// get the URL from the transient.
-		// $image_urls = get_transient( 'tribe-embed_' . $this->get_video_id() );
-		$image_data = false;
+		$image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
 
 		// if we don't have a transient.
 		if ( false === $image_data ) {
