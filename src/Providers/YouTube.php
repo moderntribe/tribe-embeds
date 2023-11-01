@@ -2,7 +2,7 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
-final class YouTube {
+final class YouTube extends Provider {
 
 	public const BASE_URL = 'https://img.youtube.com/vi/';
 
@@ -18,24 +18,6 @@ final class YouTube {
 		'youtube.com',
 		'youtu.be',
 	];
-
-	private array $video_url;
-	private string $video_id;
-
-	private static self $instance;
-
-	public function __construct( array $video_url = [] ) {
-		$this->video_url = $video_url;
-		$this->video_id  = $this->set_video_id();
-	}
-
-	public static function instance( array $video_url ): self {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new self( $video_url );
-		}
-
-		return self::$instance;
-	}
 
 	/**
 	 * Accepts a video id and returns an array of thumbnail data
@@ -84,11 +66,7 @@ final class YouTube {
 		return apply_filters( 'tribe-embed_youtube_video_thumbnail_data', $image_data, $this->get_video_id() );
 	}
 
-	public function get_video_id(): string {
-		return $this->video_id;
-	}
-
-	private function set_video_id(): string {
+	protected function set_video_id(): string {
 
 		switch ( $this->video_url['host'] ) {
 			// for standard youtube URLs

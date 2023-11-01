@@ -2,7 +2,7 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
-final class Dailymotion {
+final class Dailymotion extends Provider {
 
 	public const BASE_URL = 'https://api.dailymotion.com/video/';
 
@@ -24,28 +24,6 @@ final class Dailymotion {
 		'dailymotion.com',
 		'dai.ly',
 	];
-
-	private array $video_url;
-	private string $video_id;
-
-	private static self $instance;
-
-	public function __construct( array $video_url = [] ) {
-		$this->video_url = $video_url;
-		$this->video_id  = $this->set_video_id();
-	}
-
-	public static function instance( array $video_url ): self {
-		if ( ! isset( self::$instance ) ) {
-			self::$instance = new self( $video_url );
-		}
-
-		return self::$instance;
-	}
-
-	public function get_video_id(): string {
-		return $this->video_id;
-	}
 
 	/**
 	 * Return the vimeo video thumbnail urls.
@@ -104,7 +82,7 @@ final class Dailymotion {
 		return apply_filters( 'tribe-embed_dailymotion_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
-	private function set_video_id(): string {
+	protected function set_video_id(): string {
 		switch ( $this->video_url['host'] ) {
 			case 'www.dailymotion.com':
 			case 'dailymotion.com':
