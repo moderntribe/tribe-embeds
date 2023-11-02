@@ -8,7 +8,7 @@
 shopt -s expand_aliases
 
 # LANDO_WEBROOT=/app/dev/public
-WP_PATH=${LANDO_WEBROOT}/wp
+WP_PATH=${LANDO_WEBROOT}
 alias wp="/usr/local/bin/wp --path=${WP_PATH}"
 
 function download_wp() {
@@ -17,6 +17,12 @@ function download_wp() {
   wp core download \
     --version=${WP_VERSION:-latest} \
     --force
+
+  wp config create \
+    --dbname=${DB_NAME:-wordpress} \
+    --dbuser=${DB_USER:-wordpress} \
+    --dbpass=${DB_PASSWORD:-wordpress} \
+    --dbhost=${DB_HOST:-database}
 }
 
 function install_wp() {
@@ -34,12 +40,9 @@ function install_wp() {
     --skip-email
 }
 
-if [ ! -d "${WP_PATH}" ]; then
+if [ ! -f "${WP_PATH}/wp-config.php" ]; then
   download_wp
   install_wp
-
-  mkdir -p ${LANDO_WEBROOT}/wp-content/{themes,plugins}
-  cp -af ${WP_PATH}/wp-content/themes/. ${LANDO_WEBROOT}/wp-content/themes/
 else
   echo "* WordPress directory found at ${WP_PATH}. Skipping installation..."
 fi
