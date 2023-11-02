@@ -5,7 +5,8 @@ let embedBlocks = null;
  * Grabs the iframe from the embed template.
  * Adds the autoplay and other attrs to the iframe src URL
  * Replaces the standard youtube domain with the no cookie version.
- * @param iframe
+ *
+ * @param {Element} iframe
  */
 function setIframeAttributes( iframe ) {
 	let iframeSrc =
@@ -22,8 +23,13 @@ function setIframeAttributes( iframe ) {
 	iframe.setAttribute( 'allow', 'autoplay' );
 }
 
+/**
+ * Creates a new caption ellement
+ * @param {Element} caption
+ *
+ * @return {Element} figcaption to insert into DOM
+ */
 function createCaptionEl( caption ) {
-	// create an element for the embed caption.
 	const captionEl = document.createElement( 'figcaption' );
 	captionEl.classList.add( 'wp-element-caption' );
 	captionEl.innerHTML = caption.innerHTML;
@@ -31,6 +37,12 @@ function createCaptionEl( caption ) {
 	return captionEl;
 }
 
+/**
+ * Setup event handlers
+ *
+ * @param {Element} embed
+ * @param {Element} template
+ */
 function setupEventHandlers( embed, template ) {
 	// create an array for storing the click event elements.
 	const clickEls = [];
@@ -63,6 +75,9 @@ function setupEventHandlers( embed, template ) {
 	} );
 }
 
+/**
+ * Core funtion which calls various actions on the embed block
+ */
 function updateEmbeds() {
 	embedBlocks.forEach( ( embed ) => {
 		// get the associated template element which holds the embed code.
