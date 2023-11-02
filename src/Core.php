@@ -80,15 +80,11 @@ final class Core {
 			return $block_content;
 		}
 
-		// create a default video id, url and thumbnail url.
-		$provider       = null;
-		$allowed_hosts  = array_merge( YouTube::ALLOWED_HOSTS, Vimeo::ALLOWED_HOSTS, Dailymotion::ALLOWED_HOSTS );
-		$video_id       = '';
-		$thumbnail_data = [];
-
-		// grab the video id.
-		$video_url        = $block['attrs']['url'];
-		$parsed_video_url = parse_url( $video_url );
+		// setup some base variables and get the video url
+		$provider         = null;
+		$allowed_hosts    = array_merge( YouTube::ALLOWED_HOSTS, Vimeo::ALLOWED_HOSTS, Dailymotion::ALLOWED_HOSTS );
+		$thumbnail_data   = [];
+		$parsed_video_url = parse_url( $block['attrs']['url'] );
 
 		// Only continue for allowed providers
 		if ( ! in_array( $parsed_video_url['host'], $allowed_hosts ) ) {
@@ -113,14 +109,9 @@ final class Core {
 				break;
 		}
 
-		// get the youtube thumbnail url.
+		// get thumbnail data.
 		$video_id       = $provider->get_video_id();
-		$thumbnail_data = $provider->get_thumbnail_data( $video_id );
-
-		// if we don't have a video id.
-		if ( '' === $video_id ) {
-			return $block_content;
-		}
+		$thumbnail_data = $provider->get_thumbnail_data();
 
 		// if we don't have any video thumbnails.
 		if ( count( $thumbnail_data ) === 0 ) {
@@ -130,7 +121,7 @@ final class Core {
 		// create an array of classes to add to the placeholder image wrapper.
 		$wrapper_classes = [
 			'wp-block-image',
-			'tribe-embed__wrapper',
+			'tribe-embed',
 			'is--' . $block['attrs']['providerNameSlug'],
 		];
 
@@ -156,7 +147,7 @@ final class Core {
 		ob_start();
 
 		// output the registered "block" styles for the thubmnail.
-		wp_print_styles( 'better-core-video-embeds-styles' );
+		wp_print_styles( 'tribe-embeds-styles' );
 
 		/**
 		 * Fires and action to which the new block markup is added too.
@@ -268,8 +259,6 @@ final class Core {
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function add_video_thumbnail_markup( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
-
-		// TODO: conditionals
 
 		$max_res_image = end( $thumbnail_data );
 		$srcset        = [];

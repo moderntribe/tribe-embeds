@@ -3,7 +3,7 @@ import domReady from '@wordpress/dom-ready';
 domReady( () => {
 	// loop through each of the hd core embed wrapper elements on the page.
 	// these are the elements that should contain the thumbnail.
-	document.querySelectorAll( '.tribe-embed__wrapper' ).forEach( ( el, i ) => {
+	document.querySelectorAll( '.tribe-embed' ).forEach( ( el, i ) => {
 		// get the associated template element which holds the embed code.
 		// it is the next element after the wrapper.
 		const template = el.nextElementSibling;
