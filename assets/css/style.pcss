@@ -1,4 +1,4 @@
-/* style.css */
+@import "variables.pcss";
 
 .tribe-embed {
 	position: relative;
@@ -12,9 +12,6 @@
 }
 
 .tribe-embed .play-button {
-	--tribe-play-button-size: 80px;
-	--tribe-play-button-background-color: #fff;
-	--tribe-play-button-opacity: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -28,24 +25,23 @@
 	background: none;
 	border: 0;
 
+	&::after {
+		content: "";
+		display: block;
+		width: 0;
+		height: 0;
+		border-style: solid;
+		border-width: 37.5px 0 37.5px 65px;
+		border-color: transparent transparent transparent var(--tribe-play-button-background-color);
+		opacity: var(--tribe-play-button-opacity);
+		transition: var(--tribe-play-button-transition);
+	}
+
 	&:hover,
 	&:focus {
 
 		&::after {
-			--tribe-play-button-opacity: 1;
+			opacity: var(--tribe-play-button-opacity--hover);
 		}
 	}
-}
-
-.tribe-embed .play-button::after {
-	--tribe-play-button-opacity: 0.8;
-	content: "";
-	display: block;
-	width: 0;
-	height: 0;
-	border-style: solid;
-	border-width: 37.5px 0 37.5px 65px;
-	border-color: transparent transparent transparent var(--tribe-play-button-background-color);
-	opacity: var(--tribe-play-button-opacity);
-	transition: all 0.2s linear;
 }
