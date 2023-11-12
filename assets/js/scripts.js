@@ -1,1 +1,6 @@
-console.log( 'scrips.js' );
+import domReady from '@wordpress/dom-ready';
+import initEmbed from './embed';
+
+domReady( () => {
+	initEmbed();
+} );

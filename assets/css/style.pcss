@@ -1,5 +1,47 @@
-/* style.css */
+@import "variables.pcss";
 
-/*body, p {
-	color: #f00;
-}*/
+.tribe-embed {
+	position: relative;
+}
+
+.tribe-embed__thumbnail {
+	height: auto;
+	max-width: 100%;
+	width: 100%;
+	cursor: pointer;
+}
+
+.tribe-embed .play-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: absolute;
+	top: calc(50% - 0.5 * var(--tribe-play-button-size));
+	left: calc(50% - 0.5 * var(--tribe-play-button-size));
+	z-index: 2;
+	width: var(--tribe-play-button-size);
+	height: var(--tribe-play-button-size);
+	cursor: pointer;
+	background: none;
+	border: 0;
+
+	&::after {
+		content: "";
+		display: block;
+		width: 0;
+		height: 0;
+		border-style: solid;
+		border-width: 37.5px 0 37.5px 65px;
+		border-color: transparent transparent transparent var(--tribe-play-button-background-color);
+		opacity: var(--tribe-play-button-opacity);
+		transition: var(--tribe-play-button-transition);
+	}
+
+	&:hover,
+	&:focus {
+
+		&::after {
+			opacity: var(--tribe-play-button-opacity--hover);
+		}
+	}
+}
