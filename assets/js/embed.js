@@ -76,7 +76,7 @@ function setupEventHandlers( embed, template ) {
 }
 
 /**
- * Core funtion which calls various actions on the embed block
+ * Core function which calls various actions on the embed block
  */
 function updateEmbeds() {
 	embedBlocks.forEach( ( embed ) => {
