@@ -18,7 +18,7 @@ Update URI:        false
 
 use Tribe\Tribe_Embed\Core;
 
-require_once  'vendor/autoload.php';
+include dirname( __FILE__ ) . '/vendor/autoload.php';
 
 register_activation_hook( __FILE__, [ Core::class, 'activate' ] );
 register_deactivation_hook( __FILE__, [ Core::class, 'deactivate' ] );
