@@ -28,6 +28,7 @@ jobs:
       - name: Initialize Composer
         run: |
           cd ${{ env.BUILD_FOLDER }}
+          composer install --no-dev
           composer dump-autoload
       - name: NPM Setup
         uses: actions/setup-node@v3
@@ -42,7 +43,7 @@ jobs:
       - name: NPM Build
         run: |
           cd ${{ env.BUILD_FOLDER }}
-          npm run dist
+          npm run build
       - name: Configure WP-CLI dist-archive-command
         run: |
           cd ${{ env.BUILD_FOLDER }}

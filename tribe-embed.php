@@ -4,7 +4,7 @@
 Plugin Name:       Tribe Embed
 Plugin URI:        https://github.com/moderntribe/tribe-embed
 Description:       A Tribe Embed Plugin.
-Version:           0.0.0
+Version:           1.0.1
 Requires at least: 6.3
 Requires PHP:      8.0
 Author:            Modern Tribe
@@ -13,6 +13,7 @@ License:           GPL v2 or later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 Text Domain:       tribe
 Domain Path:       /languages
+Update URI:        false
 */
 
 use Tribe\Tribe_Embed\Core;
