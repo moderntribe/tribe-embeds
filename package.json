@@ -1,6 +1,6 @@
 {
 	"name": "tribe-embed",
-	"version": "0.0.0",
+	"version": "1.0.2",
 	"description": "Tribe Embed",
 	"author": "Modern Tribe <admin@tri.be>",
 	"license": "GPL-2.0-or-later",
@@ -29,7 +29,7 @@
 		"assetsDir": "./assets"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^26.15.0",
+		"@wordpress/scripts": "^26.19.0",
 		"cssnano": "^6.0.1",
 		"postcss-import": "^15.1.0",
 		"postcss-preset-env": "^9.2.0"
