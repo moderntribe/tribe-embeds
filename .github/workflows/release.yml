@@ -33,7 +33,7 @@ jobs:
       - name: NPM Setup
         uses: actions/setup-node@v3
         with:
-          node-version: '16.13.1'
+          node-version-file: "${{ env.BUILD_FOLDER }}/.nvmrc"
           cache: 'npm'
           cache-dependency-path: ${{ env.BUILD_FOLDER }}/package-lock.json
       - name: NPM Install
