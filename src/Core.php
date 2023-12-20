@@ -9,7 +9,7 @@ use WP_Block;
 
 final class Core {
 
-	public const VERSION     = '1.0.2-rc1';
+	public const VERSION     = '1.0.2';
 	public const PLUGIN_NAME = 'tribe-embed';
 
 	private static self $instance;
