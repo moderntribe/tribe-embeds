@@ -17,8 +17,8 @@ composer.json
 composer.lock
 CONTRIBUTING.md
 dev
-editor.js
-index.js
+/editor.js
+/index.js
 node_modules
 package-lock.json
 package.json
