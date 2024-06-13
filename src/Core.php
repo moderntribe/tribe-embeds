@@ -9,7 +9,7 @@ use WP_Block;
 
 final class Core {
 
-	public const VERSION     = '1.0.2';
+	public const VERSION     = '1.0.3';
 	public const PLUGIN_NAME = 'tribe-embed';
 
 	private static self $instance;
@@ -232,6 +232,7 @@ final class Core {
 		?>
 <figure class="<?php echo esc_attr( implode( ' ', $wrapper_classes ) ); ?>"
 	data-id="<?php echo esc_attr( $video_id ); ?>">
+	<div class="tribe-embed__inner">
 		<?php
 	}
 
@@ -286,6 +287,7 @@ final class Core {
 	public function close_markup_figure_element( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): void {
 
 		?>
+	</div>
 </figure>
 		<?php
 	}
