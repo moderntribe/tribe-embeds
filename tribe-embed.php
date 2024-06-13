@@ -4,7 +4,7 @@
  * Plugin Name:       Tribe Embed
  * Plugin URI:        https://github.com/moderntribe/tribe-embed
  * Description:       A Tribe Embed Plugin.
- * Version:           1.0.2
+ * Version:           1.0.3
  * Requires at least: 6.3
  * Requires PHP:      8.0
  * Author:            Modern Tribe
