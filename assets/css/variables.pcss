@@ -1,8 +1,7 @@
 :root {
 
 	/* Button Size */
-	--tribe-play-button-size: 75px;
-	--tribe-play-button-size--mobile: 45px;
+	--tribe-play-button-size: clamp(45px, 39px + 1.875cqi, 75px);
 
 	/* Button Color */
 	--tribe-play-button-background-color: #fff;
@@ -13,11 +12,8 @@
 	--tribe-play-button-transition: all 0.2s linear;
 
 	/* Button Icon */
-	--tribe-play-button-icon-width: 30px;
-	--tribe-play-button-icon-width--mobile: 18px;
-	--tribe-play-button-icon-height: 33px;
-	--tribe-play-button-icon-height--mobile: 20px;
-	--tribe-play-button-icon-offset: 4px;
-	--tribe-play-button-icon-offset--mobile: 2px;
+	--tribe-play-button-icon-width: clamp(18px, 15.6px + 0.75cqi, 30px);
+	--tribe-play-button-icon-height: clamp(20px, 17.4px + 0.8125cqi, 33px);
+	--tribe-play-button-icon-offset: clamp(2px, 1.6px + 0.125cqi, 4px);
 	--tribe-play-button-icon-color: #000;
 }
