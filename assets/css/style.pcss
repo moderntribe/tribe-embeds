@@ -1,10 +1,18 @@
 @import "variables.pcss";
 
+.tribe-embed {
+	container: tribeembed / inline-size;
+}
+
 .tribe-embed__inner {
-	position: relative;
+	display: grid;
+	grid-template: "container";
+	place-items: center;
+	place-content: center;
 }
 
 .tribe-embed__thumbnail {
+	grid-area: container;
 	height: auto;
 	max-width: 100%;
 	width: 100%;
@@ -12,18 +20,21 @@
 }
 
 .tribe-embed .play-button {
+	grid-area: container;
+	z-index: 2;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	position: absolute;
-	top: calc(50% - 0.5 * var(--tribe-play-button-size));
-	left: calc(50% - 0.5 * var(--tribe-play-button-size));
-	z-index: 2;
 	width: var(--tribe-play-button-size);
 	height: var(--tribe-play-button-size);
-	cursor: pointer;
-	background: none;
+	padding: 0;
+	margin: 0;
+	background-color: var(--tribe-play-button-background-color);
 	border: 0;
+	border-radius: 100%;
+	opacity: var(--tribe-play-button-opacity);
+	cursor: pointer;
+	transition: var(--tribe-play-button-transition);
 
 	&::after {
 		content: "";
@@ -31,17 +42,13 @@
 		width: 0;
 		height: 0;
 		border-style: solid;
-		border-width: 37.5px 0 37.5px 65px;
-		border-color: transparent transparent transparent var(--tribe-play-button-background-color);
-		opacity: var(--tribe-play-button-opacity);
-		transition: var(--tribe-play-button-transition);
+		border-width: calc(var(--tribe-play-button-icon-height) / 2) 0 calc(var(--tribe-play-button-icon-height) / 2) var(--tribe-play-button-icon-width);
+		border-color: transparent transparent transparent var(--tribe-play-button-icon-color);
+		transform: translateX(var(--tribe-play-button-icon-offset));
 	}
 
 	&:hover,
 	&:focus {
-
-		&::after {
-			opacity: var(--tribe-play-button-opacity--hover);
-		}
+		opacity: var(--tribe-play-button-opacity--hover);
 	}
 }

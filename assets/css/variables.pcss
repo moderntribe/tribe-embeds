@@ -1,7 +1,19 @@
 :root {
-	--tribe-play-button-size: 80px;
+
+	/* Button Size */
+	--tribe-play-button-size: clamp(45px, 39px + 1.875cqi, 75px);
+
+	/* Button Color */
 	--tribe-play-button-background-color: #fff;
 	--tribe-play-button-opacity: 1;
 	--tribe-play-button-opacity--hover: 0.8;
-	--tribe-play-button-transition: all 0.2s linear;
+
+	/* Button Transition */
+	--tribe-play-button-transition: opacity 0.2s ease-out;
+
+	/* Button Icon */
+	--tribe-play-button-icon-width: clamp(18px, 15.6px + 0.75cqi, 30px);
+	--tribe-play-button-icon-height: clamp(20px, 17.4px + 0.8125cqi, 33px);
+	--tribe-play-button-icon-offset: clamp(2px, 1.6px + 0.125cqi, 4px);
+	--tribe-play-button-icon-color: #000;
 }
