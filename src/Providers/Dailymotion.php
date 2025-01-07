@@ -36,8 +36,7 @@ final class Dailymotion extends Provider {
 		}
 
 		// get the URL from the transient.
-		// $image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
-		$image_data = false;
+		$image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
 
 		// if we don't have a transient.
 		if ( false === $image_data ) {
@@ -58,6 +57,10 @@ final class Dailymotion extends Provider {
 						$video_details
 					)
 				);
+
+				if ( $response_body === null ) {
+					return '';
+				}
 
 				// get the image url from the json.
 				$image_url = $response_body->$resolution;
