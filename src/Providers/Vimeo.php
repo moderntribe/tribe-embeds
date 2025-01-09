@@ -51,6 +51,10 @@ final class Vimeo extends Provider {
 				)
 			);
 
+			if ( $response_body === null ) {
+				return [];
+			}
+
 			foreach ( self::IMAGE_SIZES as $resolution ) {
 				// get the image url from the json.
 				$image_url = $response_body[0]->$resolution;
