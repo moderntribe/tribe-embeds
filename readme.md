@@ -31,3 +31,40 @@ If you need to rebuild the lando environment you will need to delete the `./dev/
 ### Building Plugin
 
 This repo is setup to use the [WP CLI dist-archive](https://developer.wordpress.org/cli/commands/dist-archive/) command.  To build the zip file for the make sure you have the dist-archive command package installed and run `wp dist-archive .` form the root folder. The zip file will be created one folder back form the root folder.
+
+
+### Providers
+
+Each provider represents separate service(YouTube, Vimeo, etc). In order to provide ability extend list of providers use `tribe-embeds_video_provider` hook. 
+For proper use add new class in your theme or plugin. Each provider should extend `Tribe\Tribe_Embed\Provider` class
+Usage example:
+```php
+class TestProvider extends \Tribe\Tribe_Embed\Provider {
+....
+}
+
+function is_allowed_provider(): bool {
+...
+}
+
+/**
+ * @var mixed|null $provider  
+ * @var array $video_url_data Video url parsed with parse_url
+ * @var array $block          The full block, including name and attributes.
+ */
+add_filter( 'tribe-embeds_video_provider', function( $provider, $video_url_data, $block ) {
+    if ( is_allowed_provider( $video_url_data['host'] ) ) {
+        return $provider;
+    }
+    return ( new TestProvider( $video_url_data ) );
+}, 10, 3 );
+```
+A list of allowed providers can be updated via `tribe-embeds_allowed_provider_hosts` hook
+```php
+/**
+ * Allows to inject custom provider hosts
+ * @var array $allowed_hosts List of allowed hosts
+ * @var string $host         Current video hostname                          
+ */
+$allowed_hosts = apply_filters( 'tribe-embeds_allowed_provider_hosts', $allowed_hosts, $host );
+```
