@@ -59,3 +59,12 @@ add_filter( 'tribe-embeds_video_provider', function( $provider, $video_url_data,
     return ( new TestProvider( $video_url_data ) );
 }, 10, 3 );
 ```
+A list of allowed providers can be updated via `tribe-embeds_allowed_provider_hosts` hook
+```php
+/**
+ * Allows to inject custom provider hosts
+ * @var array $allowed_hosts List of allowed hosts
+ * @var string $host         Current video hostname                          
+ */
+$allowed_hosts = apply_filters( 'tribe-embeds_allowed_provider_hosts', $allowed_hosts, $host );
+```

@@ -348,6 +348,13 @@ final class Core {
 			$allowed_hosts = array_merge( YouTube::ALLOWED_HOSTS, Vimeo::ALLOWED_HOSTS, Dailymotion::ALLOWED_HOSTS );
 		}
 
+		/**
+		 * Allows to inject custom provider hosts
+		 * @var array $allowed_hosts List of allowed hosts
+		 * @var string $host         Current video hostname
+		 */
+		$allowed_hosts = apply_filters( 'tribe-embeds_allowed_provider_hosts', $allowed_hosts, $host );
+
 		if ( in_array( $host, $allowed_hosts ) ) {
 			return true;
 		}
