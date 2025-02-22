@@ -344,6 +344,7 @@ final class Core {
 	 * @param array  $allowed_hosts
 	 */
 	private function is_allowed_host( string $host, array $allowed_hosts = [] ): bool {
+		// Use default list of allowed hosts if nothing has been specified
 		if ( empty( $allowed_hosts ) ) {
 			$allowed_hosts = array_merge( YouTube::ALLOWED_HOSTS, Vimeo::ALLOWED_HOSTS, Dailymotion::ALLOWED_HOSTS );
 		}
@@ -359,6 +360,14 @@ final class Core {
 			return true;
 		}
 
+		/**
+		 * Check if requested host is in the list of allowed ones. This is a wildcard check with regex
+		 * and it is specifically handles problem with provider dynamic urls
+		 *
+		 * Example:
+		 * Wistia video embed: https://tri-4.wistia.com/medias/7c1s0ftfl3?embedType=web_component&seo=true&videoWidth=960
+		 * The `tri-4` part may vary and be different for different videos or/and accounts
+		 */
 		$allowed_hosts = array_filter( $allowed_hosts, static function ( $allowed ) use ( $host ) {
 			return (bool) preg_match( "/$allowed/i", $host );
 		} );
