@@ -90,9 +90,9 @@ final class Vimeo extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
-
-				break;
 		}
+
+		return '';
 	}
 
 }
