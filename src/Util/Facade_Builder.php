@@ -198,7 +198,7 @@ final class Facade_Builder {
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
 	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): string {
-		$html = sprintf( '<template id=tribe-embed-embed-html-%s">%s</template>', esc_attr( $video_id ), wp_kses( $block['innerHTML'], $this->allowed_innerblock_html() ) );
+		$html = sprintf( '<template id="tribe-embed-embed-html-%s">%s</template>', esc_attr( $video_id ), wp_kses( $block['innerHTML'], $this->allowed_innerblock_html() ) );
 
 		return apply_filters( 'tribe_embeds_video_embed_template', $html, $block, $video_id, $thumbnail_data, $wrapper_classes );
 	}
