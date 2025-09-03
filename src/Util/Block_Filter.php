@@ -72,7 +72,7 @@ final class Block_Filter {
 		// buffer the output as we need to return not echo.
 		ob_start();
 
-		// output the registered "block" styles for the thubmnail.
+		// output the registered "block" styles for the thumbnail.
 		wp_print_styles( 'tribe-embeds-styles' );
 
 		$facade_html = $this->facade->build( $result['thumb'], $block, $result['video_id'] );
