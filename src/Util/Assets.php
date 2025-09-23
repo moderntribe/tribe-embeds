@@ -21,7 +21,7 @@ final class Assets {
 	 * Registers the admin scripts
 	 */
 	public function register_admin_scripts(): void {
-		$asset_file = include  TRIBE_MP_PATH . 'dist/editor.asset.php';
+		$asset_file = include TRIBE_MP_PATH . 'dist/editor.asset.php';
 		wp_enqueue_script( $this->plugin_name . '-admin', TRIBE_MP_URL . 'dist/editor.js', $asset_file['dependencies'], $asset_file['version'] );
 		wp_enqueue_style( $this->plugin_name . '-admin', TRIBE_MP_URL . 'dist/editor.css', $asset_file['version'] );
 	}
@@ -30,7 +30,7 @@ final class Assets {
 	 * Registers the public scripts
 	 */
 	public function register_public_scripts(): void {
-		$asset_file = include  TRIBE_MP_PATH . 'dist/index.asset.php';
+		$asset_file = include TRIBE_MP_PATH . 'dist/index.asset.php';
 		wp_enqueue_script( $this->plugin_name . '-public', TRIBE_MP_URL . 'dist/index.js', $asset_file['dependencies'], $asset_file['version'] );
 		wp_enqueue_style( $this->plugin_name . '-public', TRIBE_MP_URL . 'dist/style-index.css', $asset_file['version'] );
 	}
