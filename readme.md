@@ -75,3 +75,89 @@ add_filter( 'tribe-embeds_allowed_provider_hosts', function ( array $hosts ) {
     return $hosts;
 }, 10 );
 ```
+
+#### `tribe_embeds_video_provider`
+
+Allow short-circuit with a ready-made provider instance
+
+- **Signature:** `apply_filters( 'tribe_embeds_video_provider', null, $video_url_data, $block )`
+- **Args:**
+    - `null|<Provider object>` — if object provided resolves immediately and return provided object 
+    - `$video_url_data` — embed video ulr
+    - `$block` — current embed block data
+- **Return:** `null` or provided provider class
+- **Example:**
+```php
+add_filter( 'tribe_embeds_video_provider', function ( $obj, $video_url_data, $block ) {
+    // Note: $video_url_data has parsed video url. Provider accepts url string 
+    $provider = new CustomProvider( $video_url );
+    
+    return $provider;
+}, 10 );
+```
+
+#### `tribe_embeds_allowed_provider_hosts_<slug>`
+
+Adjust allowed hosts for provider
+
+- **Signature:** `apply_filters( 'tribe_embeds_allowed_provider_hosts_' . $slug, $base, $provider_class );`
+- **Args:**
+    - `$base` — list of allowed hosts
+    - `$provider_class` — current provider class
+
+#### `tribe_embeds_allowed_provider_hosts`
+
+Adjust allowed hosts for provider
+
+- **Signature:** `apply_filters( 'tribe_embeds_allowed_provider_hosts', $by_provider, $provider_class );`
+- **Args:**
+    - `$by_provider` — List of hosts returned from `tribe_embeds_allowed_provider_hosts_<slug>`
+    - `$provider_class` — current provider class
+
+#### `tribe_embeds_image_sizes_<slug>`
+
+Get image sizes for a provider
+
+- **Signature:** `apply_filters( 'tribe_embeds_image_sizes_' . $slug, $base, $provider_class );`
+- **Args:**
+    - `$base` — list of image sizes
+    - `$provider_class` — current provider class
+
+#### `tribe_embeds_image_sizes`
+
+Get image sizes for a provider
+
+- **Signature:** `apply_filters( 'tribe_embeds_image_sizes', $by_provider, $provider_class );`
+- **Args:**
+    - `$by_provider` — list of image sizes `tribe_embeds_image_sizes_<slug>`
+    - `$provider_class` — current provider class
+
+#### `tribe_embeds_provider_classes`
+
+Allow external override of provider class list
+
+- **Signature:** `apply_filters( 'tribe_embeds_provider_classes', $provider_classes ?: $defaults );`
+- **Args:**
+    - `$provider_classes` — list of existing providers classes
+
+#### `tribe-embed_<video-provider>_video_thumbnail_url`
+
+Allows to adjust image data for each provider. Use slug instead of `<video-provider>` e.g `tribe-embed_wistia_video_thumbnail_url`
+
+- **Signature:** `apply_filters( 'tribe-embed_wistia_video_thumbnail_url', $image_data, $video_id )`
+- **Args:**
+    - `$image_data` — Thumbnail image data
+    - `$video_id` — current video id
+- **Return:** Video thumbnail image data.
+
+####  `tribe_embeds_facade_html`
+
+Fires and action to which the new block markup is added too.
+
+- **Signature:** `apply_filters( 'tribe_embeds_facade_html', $facade_html, $provider, $block, $html )`
+- **Args:**
+    - `$facade_html` — Resulting html
+    - `$provider` — provider class
+    - `$block` — current block 
+    - `$html` — original block html
+- **Return:** Embed block markup
