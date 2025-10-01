@@ -47,7 +47,7 @@ class Wistia extends Provider {
 			] );
 
 			// if the request to the image errors or returns anything other than a http 200 response code.
-			if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
+			if ( ( is_wp_error( $video_details ) ) || ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
 				return [];
 			}
 
@@ -70,10 +70,14 @@ class Wistia extends Provider {
 				$image_url = strtok( $response_body->thumbnail->url, '?' );
 				switch ( $resolution ) {
 					case 'thumbnail_640_url':
-						$image_url .= '?image_crop_resized=640x360';
+						$image_url = add_query_arg( [
+							'image_crop_resized' => '640x360',
+						], $image_url );
 						break;
 					case 'thumbnail_320_url':
-						$image_url .= '?image_crop_resized=320x260';
+						$image_url = add_query_arg( [
+							'image_crop_resized' => '320x260',
+						], $image_url );
 						break;
 				}
 
