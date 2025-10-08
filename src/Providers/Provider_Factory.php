@@ -18,6 +18,7 @@ final class Provider_Factory {
 			'\\Tribe\\Tribe_Embed\\Providers\\YouTube',
 			'\\Tribe\\Tribe_Embed\\Providers\\Vimeo',
 			'\\Tribe\\Tribe_Embed\\Providers\\Dailymotion',
+			'\\Tribe\\Tribe_Embed\\Providers\\Wistia',
 		];
 
 		/** Allow external override of provider class list */
