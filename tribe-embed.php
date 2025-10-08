@@ -24,7 +24,9 @@ register_activation_hook( __FILE__, [ Core::class, 'activate' ] );
 register_deactivation_hook( __FILE__, [ Core::class, 'deactivate' ] );
 
 add_action( 'plugins_loaded', static function (): void {
-	tribe_embed_core()->init( __file__ );
+	$core = tribe_embed_core();
+
+	$core->register_hooks();
 } );
 
 function tribe_embed_core(): Core {

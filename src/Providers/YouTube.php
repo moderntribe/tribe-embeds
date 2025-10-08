@@ -83,8 +83,6 @@ final class YouTube extends Provider {
 				// set the video id to the v query arg.
 				return $video_url_query_args['v'];
 
-				break;
-
 			// for youtube short urls.
 			case 'youtu.be':
 				// if we have a path.
@@ -94,9 +92,9 @@ final class YouTube extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
-
-				break;
 		}
+
+		return '';
 	}
 
 }

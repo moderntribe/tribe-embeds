@@ -48,7 +48,7 @@ final class Dailymotion extends Provider {
 
 				// if the request to the image errors or returns anything other than a http 200 response code.
 				if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
-					return '';
+					return [];
 				}
 
 				// grab the body of the response.
@@ -59,7 +59,7 @@ final class Dailymotion extends Provider {
 				);
 
 				if ( $response_body === null ) {
-					return '';
+					return [];
 				}
 
 				// get the image url from the json.
@@ -96,8 +96,6 @@ final class Dailymotion extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/video/', '', $this->video_url['path'] );
-
-				break;
 			case 'dai.ly':
 				// if we have a path.
 				if ( empty( $this->video_url['path'] ) ) {
@@ -106,9 +104,9 @@ final class Dailymotion extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
-
-				break;
 		}
+
+		return '';
 	}
 
 }
