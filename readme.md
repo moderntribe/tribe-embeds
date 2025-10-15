@@ -68,3 +68,8 @@ A list of allowed providers can be updated via `tribe-embeds_allowed_provider_ho
  */
 $allowed_hosts = apply_filters( 'tribe-embeds_allowed_provider_hosts', $allowed_hosts, $host );
 ```
+
+### Vimeo
+
+In order to make Vimeo provider thumbs work correctly create an access token https://help.vimeo.com/hc/en-us/articles/12427789081745-How-to-generate-a-personal-access-token
+Use Tribe Embeds Settings page to store token via DB or set `VIMEO_ACCESS_TOKEN` in you wp-config.php
