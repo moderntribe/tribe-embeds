@@ -2,17 +2,14 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
+use Tribe\Tribe_Embed\Admin\Settings_Page;
+
 final class Vimeo extends Provider {
 
-	public const BASE_URL = 'https://vimeo.com/api/v2/video/';
-
-	public const IMAGE_SIZES = [
-		'thumbnail_small',
-		'thumbnail_medium',
-		'thumbnail_large',
-	];
+	public const BASE_URL = 'https://api.vimeo.com/videos/%s/pictures';
 
 	public const ALLOWED_HOSTS = [
+		'player.vimeo.com',
 		'www.vimeo.com',
 		'vimeo.com',
 	];
@@ -34,37 +31,22 @@ final class Vimeo extends Provider {
 		if ( false === $image_data ) {
 			$image_data = [];
 
-			// get the video details from the api.
-			$video_details = wp_remote_get(
-				self::BASE_URL . esc_attr( $this->get_video_id() ) . '.json'
-			);
+			$response_body = $this->get_video_pictures();
 
-			// if the request to the hi res image errors or returns anything other than a http 200 response code.
-			if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
+			if ( empty( $response_body ) || empty( $response_body['data'] ) || empty( $response_body['data'][0]['sizes'] ) ) {
 				return [];
 			}
 
-			// grab the body of the response.
-			$response_body = json_decode(
-				wp_remote_retrieve_body(
-					$video_details
-				)
-			);
-
-			if ( $response_body === null ) {
-				return [];
-			}
-
-			foreach ( self::IMAGE_SIZES as $resolution ) {
+			foreach ( $response_body['data'][0]['sizes'] as $resolution ) {
 				// get the image url from the json.
-				$image_url = $response_body[0]->$resolution;
+				$image_url = $resolution['link'];
+				$width     = $resolution['width'];
+				$height    = $resolution['height'];
 
-				$image_size = getimagesize( $image_url );
-				$width      = $image_size[0];
-				$height     = $image_size[1];
+				$resolution_name = sprintf( 'thumbnail_%s_%s', $width, $height );
 
 				// set the image data
-				$image_data[ $resolution ] = [
+				$image_data[ $resolution_name ] = [
 					'url'    => $image_url,
 					'width'  => $width,
 					'height' => $height,
@@ -79,17 +61,79 @@ final class Vimeo extends Provider {
 		return apply_filters( 'tribe-embed_vimeo_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
+	protected function get_video_pictures(): array {
+		$token = $this->get_token();
+
+		if ( empty( $token ) ) {
+			return [];
+		}
+
+		// get the video details from the api.
+		$video_details = wp_remote_get(
+			sprintf( self::BASE_URL, $this->get_video_id() ),
+			[
+				'headers' => [
+					'Authorization' => sprintf( 'Bearer %s', $token ),
+					'Accept'        => 'application/json',
+				],
+			]
+		);
+
+		// if the request to the hi res image errors or returns anything other than a http 200 response code.
+		if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
+			return [];
+		}
+
+		// grab the body of the response.
+		$response_body = json_decode(
+			wp_remote_retrieve_body(
+				$video_details
+			),
+			true
+		);
+
+		if ( $response_body === null ) {
+			return [];
+		}
+
+		return $response_body;
+	}
+
 	protected function set_video_id(): string {
 		switch ( $this->video_url['host'] ) {
 			case 'vimeo.com':
 			case 'www.vimeo.com':
-				// if we have a path.
-				if ( $this->video_url['path'] === '' ) {
-					return $this->video_url['path'];
+				if ( empty( $this->video_url['path'] ) ) {
+					return '';
+				}
+
+				$maybe_find_correct_id = explode( '/', trim( $this->video_url['path'] ) );
+
+				if ( is_array( $maybe_find_correct_id ) && isset( $maybe_find_correct_id[2] ) ) {
+					// urls like https://vimeo.com/1083696811/fd0767701e
+					return $maybe_find_correct_id[1];
 				}
 
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
+
+			case 'player.vimeo.com':
+				return str_replace( '/video/', '', $this->video_url['path'] );
+
+			default:
+				return '';
+		}
+	}
+
+	protected function get_token(): string {
+		if ( defined( 'VIMEO_ACCESS_TOKEN' ) && ! empty( VIMEO_ACCESS_TOKEN ) ) {
+			return VIMEO_ACCESS_TOKEN;
+		}
+
+		$settings = Settings_Page::get_stored_settings();
+
+		if ( ! empty( $settings[ Settings_Page::VIMEO_TOKEN ] ) ) {
+			return $settings[ Settings_Page::VIMEO_TOKEN ];
 		}
 
 		return '';

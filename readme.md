@@ -32,6 +32,11 @@ If you need to rebuild the lando environment you will need to delete the `./dev/
 
 This repo is setup to use the [WP CLI dist-archive](https://developer.wordpress.org/cli/commands/dist-archive/) command.  To build the zip file for the make sure you have the dist-archive command package installed and run `wp dist-archive .` form the root folder. The zip file will be created one folder back form the root folder.
 
+### Vimeo
+
+In order to make Vimeo provider thumbs work correctly create an access token https://help.vimeo.com/hc/en-us/articles/12427789081745-How-to-generate-a-personal-access-token
+Use Tribe Embeds Settings page to store token via DB or set `VIMEO_ACCESS_TOKEN` in you wp-config.php
+
 
 ## Hooks (filters & actions)
 

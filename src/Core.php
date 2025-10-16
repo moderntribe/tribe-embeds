@@ -2,6 +2,7 @@
 
 namespace Tribe\Tribe_Embed;
 
+use Tribe\Tribe_Embed\Admin\Settings_Page;
 use Tribe\Tribe_Embed\Providers\Provider_Factory;
 use Tribe\Tribe_Embed\Util\Assets;
 use Tribe\Tribe_Embed\Util\Block_Filter;
@@ -15,7 +16,7 @@ use Tribe\Tribe_Embed\Util\Url_Parser;
  */
 final class Core {
 
-	public const VERSION     = '1.1';
+	public const VERSION     = '1.1.1';
 	public const PLUGIN_NAME = 'tribe-embed';
 
 	private Provider_Factory|null $factory  = null;
@@ -46,8 +47,13 @@ final class Core {
 
 		add_action( 'admin_enqueue_scripts', [ $assets, 'register_admin_scripts' ] );
 		add_action( 'wp_enqueue_scripts', [ $assets, 'register_public_scripts' ] );
+		add_action( 'init', [ $this, 'register_settings' ] );
 
 		$this->block_filter()->register_hooks();
+	}
+
+	public function register_settings(): void {
+		( new Settings_Page() );
 	}
 
 	/** Get Provider_Factory */
