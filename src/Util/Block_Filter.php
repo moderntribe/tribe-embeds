@@ -65,6 +65,7 @@ final class Block_Filter {
 
 		// Fallback: use thumbnails and facade
 		$result = $this->thumbs->resolve_thumb( $video_url_data, $block );
+
 		if ( $result === null ) {
 			return $html;
 		}
@@ -75,7 +76,7 @@ final class Block_Filter {
 		// output the registered "block" styles for the thumbnail.
 		wp_print_styles( 'tribe-embeds-styles' );
 
-		$facade_html = $this->facade->build( $result['thumb'], $block, $result['video_id'] );
+		$facade_html = $this->facade->build( $result['thumb'], $block, $result['video_id'], $result['provider'] );
 
 		/**
 		 * Fires and action to which the new block markup is added too.

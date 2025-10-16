@@ -3,6 +3,7 @@
 namespace Tribe\Tribe_Embed;
 
 use Tribe\Tribe_Embed\Admin\Settings_Page;
+use Tribe\Tribe_Embed\Admin\Support_Providers;
 use Tribe\Tribe_Embed\Providers\Provider_Factory;
 use Tribe\Tribe_Embed\Util\Assets;
 use Tribe\Tribe_Embed\Util\Block_Filter;
@@ -43,13 +44,15 @@ final class Core {
 
 	/** Register WP hooks via Block_Filter */
 	public function register_hooks(): void {
-		$assets = new Assets( self::PLUGIN_NAME, self::VERSION );
+		$assets            = new Assets( self::PLUGIN_NAME, self::VERSION );
+		$providers_support = new Support_Providers();
 
 		add_action( 'admin_enqueue_scripts', [ $assets, 'register_admin_scripts' ] );
 		add_action( 'wp_enqueue_scripts', [ $assets, 'register_public_scripts' ] );
 		add_action( 'init', [ $this, 'register_settings' ] );
 
 		$this->block_filter()->register_hooks();
+		$providers_support->register();
 	}
 
 	public function register_settings(): void {

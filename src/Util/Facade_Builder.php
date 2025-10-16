@@ -2,6 +2,9 @@
 
 namespace Tribe\Tribe_Embed\Util;
 
+use Tribe\Tribe_Embed\Providers\Provider;
+use Tribe\Tribe_Embed\Providers\Wistia;
+
 /**
  * Builds HTML facade <img> for video embeds.
  */
@@ -14,14 +17,21 @@ final class Facade_Builder {
 	 * @param array<string,mixed> $block
 	 * @param string $video_id
 	 */
-	public function build( array $thumb, array $block, string $video_id ): string {
+	public function build( array $thumb, array $block, string $video_id, Provider $provider ): string {
 		$wrapper_classes = $this->get_wrapper_classes( $block, $video_id, $thumb );
 
 		$content  = $this->open_markup_figure_element( $block, $video_id, $thumb, $wrapper_classes );
 		$content .= $this->add_video_play_button( $block, $video_id, $thumb, $wrapper_classes );
 		$content .= $this->add_video_thumbnail_markup( $block, $video_id, $thumb, $wrapper_classes );
+
+		if ( is_a( $provider, Wistia::class ) ) {
+			$content .= $this->add_raw_original_embed( $block, $video_id, $thumb, $wrapper_classes, $provider );
+			$content .= $this->close_markup_figure_element( $block, $video_id, $thumb, $wrapper_classes );
+
+			return $content;
+		}
 		$content .= $this->close_markup_figure_element( $block, $video_id, $thumb, $wrapper_classes );
-		$content .= $this->add_original_embed_template( $block, $video_id, $thumb, $wrapper_classes );
+		$content .= $this->add_original_embed_template( $block, $video_id, $thumb, $wrapper_classes, $provider );
 
 		return $content;
 	}
@@ -147,41 +157,52 @@ final class Facade_Builder {
 		 * Therefore, we need to allow these to keep the same structure.
 		 */
 		return [
-			'iframe'     => [
+			'iframe'        => [
 				'src'             => true,
 				'height'          => true,
 				'width'           => true,
 				'frameborder'     => true,
 				'allowfullscreen' => true,
 			],
-			'figure'     => [
+			'style'         => [],
+			'wistia-player' => [
+				'media-id' => true,
+				'dnt'      => true,
+				'aspect'   => true,
+			],
+			'script'        => [
+				'src'   => true,
+				'type'  => true,
+				'async' => true,
+			],
+			'figure'        => [
 				'class' => true,
 			],
-			'figcaption' => [
+			'figcaption'    => [
 				'class' => true,
 			],
-			'div'        => [
+			'div'           => [
 				'class' => true,
 			],
-			'a'          => [
+			'a'             => [
 				'class'     => true,
 				'href'      => true,
 				'data-type' => true,
 			],
-			'strong'     => [],
-			'em'         => [],
-			'sub'        => [],
-			'sup'        => [],
-			's'          => [],
-			'kbd'        => [],
-			'img'        => [
+			'strong'        => [],
+			'em'            => [],
+			'sub'           => [],
+			'sup'           => [],
+			's'             => [],
+			'kbd'           => [],
+			'img'           => [
 				'class' => true,
 				'style' => true,
 				'src'   => true,
 				'alt'   => true,
 			],
-			'code'       => [],
-			'mark'       => [
+			'code'          => [],
+			'mark'          => [
 				'style' => true,
 				'class' => true,
 			],
@@ -197,10 +218,14 @@ final class Facade_Builder {
 	 * @param array $thumbnail_data  The URL of the video thumbnail.
 	 * @param array  $wrapper_classes An array of CSS classes to add to the wrapper.
 	 */
-	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): string {
+	public function add_original_embed_template( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes, Provider $provider ): string {
 		$html = sprintf( '<template id="tribe-embed-embed-html-%s">%s</template>', esc_attr( $video_id ), wp_kses( $block['innerHTML'], $this->allowed_innerblock_html() ) );
 
-		return apply_filters( 'tribe_embeds_video_embed_template', $html, $block, $video_id, $thumbnail_data, $wrapper_classes );
+		return apply_filters( 'tribe_embeds_video_embed_template', $html, $block, $video_id, $thumbnail_data, $wrapper_classes, $provider );
+	}
+
+	public function add_raw_original_embed( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes, Provider $provider ): string {
+		return apply_filters( 'tribe_embeds_video_embed_template', wp_kses( $block['innerHTML'], $this->allowed_innerblock_html() ), $block, $video_id, $thumbnail_data, $wrapper_classes, $provider );
 	}
 
 }

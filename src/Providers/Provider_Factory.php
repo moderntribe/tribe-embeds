@@ -50,7 +50,7 @@ final class Provider_Factory {
 
 		if ( $host !== '' ) {
 			foreach ( $this->provider_classes as $class ) {
-				if ( in_array( $host, $this->allowed_hosts_for( $class ), true ) ) {
+				if ( in_array( $host, $this->allowed_hosts_for( $class ), true ) || $this->is_allowed_hosts_by_regex( $class, $host ) ) {
 					return $this->instantiate( $class, $video_url_data );
 				}
 			}
@@ -69,6 +69,26 @@ final class Provider_Factory {
 	 * @return array<int,string> Lowercased hostnames.
 	 */
 	public function allowed_hosts_for( string $provider_class ): array {
+		$global = $this->get_allowed_rules( $provider_class );
+
+		return array_values( array_unique( array_map( 'strtolower', array_filter( $global, 'is_string' ) ) ) );
+	}
+
+	public function is_allowed_hosts_by_regex( string $provider_class, string $host ): bool {
+		$global = $this->get_allowed_rules( $provider_class );
+
+		foreach ( $global as $pattern ) {
+			if ( ! preg_match( '/' . $pattern . '/i', $host ) ) {
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public function get_allowed_rules( string $provider_class ): array {
 		$base = [];
 
 		if ( defined( $provider_class . '::ALLOWED_HOSTS' ) ) {
@@ -79,9 +99,8 @@ final class Provider_Factory {
 		$slug = $this->provider_slug( $provider_class );
 
 		$by_provider = apply_filters( 'tribe_embeds_allowed_provider_hosts_' . $slug, $base, $provider_class );
-		$global      = apply_filters( 'tribe_embeds_allowed_provider_hosts', $by_provider, $provider_class );
 
-		return array_values( array_unique( array_map( 'strtolower', array_filter( (array) $global, 'is_string' ) ) ) );
+		return apply_filters( 'tribe_embeds_allowed_provider_hosts', $by_provider, $provider_class );
 	}
 
 	/**

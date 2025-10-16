@@ -2,16 +2,15 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
+use Tribe\Tribe_Embed\Admin\Settings_Page;
+
 class Wistia extends Provider {
 
 	public const BASE_URL = 'https://api.wistia.com/v1/medias/';
 
 	public const ALLOWED_HOSTS = [
-		'fast.wistia.com',
-		'wistia.com',
-		'wistia.com',
-		'www.wistia.com',
-		'wi.st',
+		'(^|\.)wistia\.com$',
+		'(^|\.)wi\.st$',
 	];
 
 	// Example: https://embed-ssl.wistia.com/deliveries/be29ff2d1c1e783bda383f30d4ec027152fcc6be.jpg?image_crop_resized=200x1200
@@ -22,8 +21,9 @@ class Wistia extends Provider {
 	];
 
 	public function get_thumbnail_data(): array {
+		$token = $this->get_token();
 		// if we have no video id.
-		if ( '' === $this->get_video_id() || ! defined( 'WISTIA_API_KEY' ) ) {
+		if ( '' === $this->get_video_id() || empty( $token ) ) {
 			return [];
 		}
 
@@ -33,15 +33,9 @@ class Wistia extends Provider {
 		if ( false === $image_data ) {
 			$image_data = [];
 
-			$wistia_api_secret = get_option( 'options_' . WISTIA_API_KEY, '' );
-
-			if ( empty( $wistia_api_secret ) ) {
-				return [];
-			}
-
 			$video_details = wp_remote_get( self::BASE_URL . $this->get_video_id() . '.json', [
 				'headers' => [
-					'Authorization' => 'Bearer ' . $wistia_api_secret,
+					'Authorization' => 'Bearer ' . $token,
 					'accept'        => 'application/json',
 				],
 			] );
@@ -113,6 +107,20 @@ class Wistia extends Provider {
 
 		// remove the preceeding slash.
 		return str_replace( '/medias/', '', $this->video_url['path'] );
+	}
+
+	protected function get_token(): string {
+		if ( defined( 'WISTIA_API_KEY' ) && ! empty( WISTIA_API_KEY ) ) {
+			return WISTIA_API_KEY;
+		}
+
+		$settings = Settings_Page::get_stored_settings();
+
+		if ( ! empty( $settings[ Settings_Page::WISTIA_TOKEN ] ) ) {
+			return (string) $settings[ Settings_Page::WISTIA_TOKEN ];
+		}
+
+		return '';
 	}
 
 }
