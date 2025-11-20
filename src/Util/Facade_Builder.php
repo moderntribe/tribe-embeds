@@ -101,10 +101,15 @@ final class Facade_Builder {
 			$srcset[] = $data['url'] . ' ' . $data['width'] . 'w';
 		}
 
+		$classes = apply_filters( 'tribe_embeds_video_thumb_classes', [
+			'tribe-embed__thumbnail',
+		], $block, $video_id, $thumbnail_data, $wrapper_classes );
+
 		$image_tag = sprintf(
-			'<img loading="lazy" width="%s" height="%s" class="tribe-embed__thumbnail" alt="" src="%s" srcset="%s" sizes="%s" />',
+			'<img loading="lazy" width="%s" height="%s" class="%s" alt="" src="%s" srcset="%s" sizes="%s" />',
 			$max_res_image['width'],
 			$max_res_image['height'],
+			implode( ' ', $classes ),
 			$max_res_image['url'],
 			implode( ',', $srcset ),
 			implode( ',', $sizes )
