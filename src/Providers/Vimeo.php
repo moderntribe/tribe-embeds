@@ -9,6 +9,7 @@ final class Vimeo extends Provider {
 	public const BASE_URL = 'https://api.vimeo.com/videos/%s/pictures';
 
 	public const ALLOWED_HOSTS = [
+		'player.vimeo.com',
 		'www.vimeo.com',
 		'vimeo.com',
 	];
@@ -115,6 +116,9 @@ final class Vimeo extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
+
+			case 'player.vimeo.com':
+				return str_replace( '/video/', '', $this->video_url['path'] );
 
 			default:
 				return '';
