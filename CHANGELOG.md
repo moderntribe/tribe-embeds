@@ -1,6 +1,10 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. 
+All notable changes to this project will be documented in this file.
+
+## v1.1.1 (Nov 20, 2025)
+- Add plugin Settings page
+- Change Vimeo API usage. API key and secret are required for proper work
 
 ## v1.1.0 (Mar 6, 2025)
 
