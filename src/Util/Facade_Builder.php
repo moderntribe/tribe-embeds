@@ -47,7 +47,7 @@ final class Facade_Builder {
 		$wrapper_classes = [
 			'wp-block-image',
 			'tribe-embed',
-			'is--' . $block['attrs']['providerNameSlug'],
+			'is--' . ( $block['attrs']['providerNameSlug'] ?? 'default' ),
 		];
 
 		// if we have classNames on the embed block.
