@@ -2,6 +2,7 @@
 
 namespace Tribe\Tribe_Embed;
 
+use Tribe\Tribe_Embed\Admin\Settings_Page;
 use Tribe\Tribe_Embed\Providers\Dailymotion;
 use Tribe\Tribe_Embed\Providers\Vimeo;
 use Tribe\Tribe_Embed\Providers\YouTube;
@@ -9,7 +10,7 @@ use WP_Block;
 
 final class Core {
 
-	public const VERSION     = '1.0.3';
+	public const VERSION     = '1.1.1';
 	public const PLUGIN_NAME = 'tribe-embed';
 
 	private static self $instance;
@@ -39,6 +40,12 @@ final class Core {
 		add_action( 'video_thumbnail_markup', [ $this, 'add_video_thumbnail_markup' ], 30, 4 );
 		add_action( 'video_thumbnail_markup', [ $this, 'close_markup_figure_element' ], 40, 4 );
 		add_action( 'video_thumbnail_markup', [ $this, 'add_original_embed_template' ], 50, 4 );
+
+		add_action( 'init', [ $this, 'register_settings' ] );
+	}
+
+	public function register_settings(): void {
+		( new Settings_Page() );
 	}
 
 	/**
