@@ -6,7 +6,7 @@ use Tribe\Tribe_Embed\Admin\Settings_Page;
 
 class Wistia extends Provider {
 
-	public const BASE_URL = 'https://api.wistia.com/v1/medias/';
+	public const BASE_URL = 'https://api.wistia.com/v1/medias?type=Video&hashed_id=';
 
 	public const ALLOWED_HOSTS = [
 		'(^|\.)wistia\.com$',
@@ -30,13 +30,14 @@ class Wistia extends Provider {
 		// get the URL from the transient.
 		$image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
 
-		if ( false === $image_data ) {
+		if ( empty( $image_data ) ) {
 			$image_data = [];
 
-			$video_details = wp_remote_get( self::BASE_URL . $this->get_video_id() . '.json', [
+			$video_details = wp_remote_get(self::BASE_URL . $this->get_video_id(), [
 				'headers' => [
-					'Authorization' => 'Bearer ' . $token,
+					'authorization' => 'Bearer ' . $token,
 					'accept'        => 'application/json',
+					'content-type'        => 'application/json',
 				],
 			] );
 
@@ -57,11 +58,11 @@ class Wistia extends Provider {
 			}
 
 			foreach ( self::IMAGE_SIZES as $resolution ) {
-				if ( empty( $response_body->thumbnail ) || empty( $response_body->thumbnail->url ) ) {
+				if ( empty( $response_body[0]->thumbnail ) || empty( $response_body[0]->thumbnail->url ) ) {
 					continue;
 				}
 
-				$image_url = strtok( $response_body->thumbnail->url, '?' );
+				$image_url = strtok( $response_body[0]->thumbnail->url, '?' );
 				switch ( $resolution ) {
 					case 'thumbnail_640_url':
 						$image_url = add_query_arg( [
