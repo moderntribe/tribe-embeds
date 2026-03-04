@@ -3,7 +3,6 @@
 namespace Tribe\Tribe_Embed\Util;
 
 use Tribe\Tribe_Embed\Providers\Provider;
-use Tribe\Tribe_Embed\Providers\Wistia;
 
 /**
  * Builds HTML facade <img> for video embeds.
@@ -24,7 +23,7 @@ final class Facade_Builder {
 		$content .= $this->add_video_play_button( $block, $video_id, $thumb, $wrapper_classes );
 		$content .= $this->add_video_thumbnail_markup( $block, $video_id, $thumb, $wrapper_classes );
 
-		if ( is_a( $provider, Wistia::class ) ) {
+		if ( $provider->uses_inline_embed() ) {
 			$content .= $this->add_raw_original_embed( $block, $video_id, $thumb, $wrapper_classes, $provider );
 			$content .= $this->close_markup_figure_element( $block, $video_id, $thumb, $wrapper_classes );
 
@@ -78,7 +77,7 @@ final class Facade_Builder {
 	 * @param array  $wrapper_classes
 	 */
 	public function add_video_play_button( array $block, string $video_id, array $thumbnail_data, array $wrapper_classes ): string {
-		$button = sprintf( '<button class="play-button" aria-label="%s"></button>', esc_html__( 'Play Video', 'tribe' ) );
+		$button = sprintf( '<button class="play-button" aria-label="%s"></button>', esc_html__( 'Play Video', 'tribe-embeds' ) );
 
 		return apply_filters( 'tribe_embeds_video_button_html', $button, $block, $video_id, $thumbnail_data, $wrapper_classes );
 	}

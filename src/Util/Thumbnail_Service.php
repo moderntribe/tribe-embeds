@@ -53,7 +53,7 @@ final class Thumbnail_Service {
 		}
 
 		try {
-			$data = $provider->get_thumbnail_data( $image_sizes );
+			$data = $provider->get_thumbnail_data();
 		} catch ( \Throwable $e ) {
 			$data = [];
 		}

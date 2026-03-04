@@ -2,9 +2,9 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
-use Tribe\Tribe_Embed\Admin\Settings_Page;
+use Tribe\Tribe_Embed\Admin\Credentials;
 
-class Wistia extends Provider {
+final class Wistia extends Provider {
 
 	public const BASE_URL = 'https://api.wistia.com/v1/medias?type=Video&hashed_id=';
 
@@ -37,7 +37,7 @@ class Wistia extends Provider {
 				'headers' => [
 					'authorization' => 'Bearer ' . $token,
 					'accept'        => 'application/json',
-					'content-type'        => 'application/json',
+					'content-type'  => 'application/json',
 				],
 			] );
 
@@ -101,6 +101,10 @@ class Wistia extends Provider {
 		return apply_filters( 'tribe-embed_wistia_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
+	public function uses_inline_embed(): bool {
+		return true;
+	}
+
 	protected function set_video_id(): string {
 		if ( empty( $this->video_url['path'] ) ) {
 			return '';
@@ -111,17 +115,7 @@ class Wistia extends Provider {
 	}
 
 	protected function get_token(): string {
-		if ( defined( 'WISTIA_API_KEY' ) && ! empty( WISTIA_API_KEY ) ) {
-			return WISTIA_API_KEY;
-		}
-
-		$settings = Settings_Page::get_stored_settings();
-
-		if ( ! empty( $settings[ Settings_Page::WISTIA_TOKEN ] ) ) {
-			return (string) $settings[ Settings_Page::WISTIA_TOKEN ];
-		}
-
-		return '';
+		return Credentials::get_wistia_token();
 	}
 
 }

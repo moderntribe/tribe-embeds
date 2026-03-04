@@ -70,18 +70,14 @@ final class Block_Filter {
 			return $html;
 		}
 
-		// buffer the output as we need to return not echo.
-		ob_start();
-
-		// output the registered "block" styles for the thumbnail.
-		wp_print_styles( 'tribe-embeds-styles' );
-
 		$facade_html = $this->facade->build( $result['thumb'], $block, $result['video_id'], $result['provider'] );
 
-		/**
-		 * Fires and action to which the new block markup is added too.
-		 */
-		echo apply_filters( 'tribe_embeds_facade_html', $facade_html, $result['provider'], $block, $html );
+		/** Filter the facade HTML before output. */
+		$facade_html = (string) apply_filters( 'tribe_embeds_facade_html', $facade_html, $result['provider'], $block, $html );
+
+		ob_start();
+		wp_print_styles( 'tribe-embeds-styles' );
+		echo $facade_html;
 
 		return ob_get_clean();
 	}

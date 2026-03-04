@@ -26,7 +26,7 @@ final class Dailymotion extends Provider {
 	];
 
 	/**
-	 * Return the vimeo video thumbnail urls.
+	 * Return the Dailymotion video thumbnail URLs.
 	 */
 	public function get_thumbnail_data(): array {
 
@@ -47,7 +47,7 @@ final class Dailymotion extends Provider {
 				$video_details = wp_remote_get( self::BASE_URL . $this->get_video_id() . '?fields=' . $resolution );
 
 				// if the request to the image errors or returns anything other than a http 200 response code.
-				if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
+				if ( is_wp_error( $video_details ) || 200 !== wp_remote_retrieve_response_code( $video_details ) ) {
 					return [];
 				}
 
@@ -96,6 +96,7 @@ final class Dailymotion extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/video/', '', $this->video_url['path'] );
+
 			case 'dai.ly':
 				// if we have a path.
 				if ( empty( $this->video_url['path'] ) ) {

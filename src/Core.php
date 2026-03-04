@@ -29,10 +29,6 @@ final class Core {
 	/** @var self|null Singleton instance */
 	private static ?self $instance = null;
 
-	private function __construct() {
-		define( 'TRIBE_MP_PATH', trailingslashit( plugin_dir_path( dirname( __FILE__ ) ) ) );
-	}
-
 	/** Get Core singleton */
 	public static function instance(): self {
 		if ( ! self::$instance instanceof self ) {

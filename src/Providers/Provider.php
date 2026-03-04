@@ -12,8 +12,11 @@ abstract class Provider {
 	protected array $video_url;
 	protected string $video_id;
 
-	protected static self $instance;
-
+	/**
+	 * Return thumbnail data for the video.
+	 *
+	 * @return array<string,array{url:string,width:int,height:int}>
+	 */
 	abstract public function get_thumbnail_data(): array;
 
 	abstract protected function set_video_id(): string;
@@ -25,6 +28,14 @@ abstract class Provider {
 
 	public function get_video_id(): string {
 		return $this->video_id ?? '';
+	}
+
+	/**
+	 * Whether this provider uses inline embed (raw HTML inside facade) instead of a template.
+	 * When true, Facade_Builder will not wrap the embed in a template element.
+	 */
+	public function uses_inline_embed(): bool {
+		return false;
 	}
 
 }

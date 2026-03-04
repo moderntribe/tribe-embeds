@@ -20,7 +20,7 @@ final class YouTube extends Provider {
 	];
 
 	/**
-	 * Accepts a video id and returns an array of thumbnail data
+	 * Accepts a video id and returns an array of thumbnail data.
 	 */
 	public function get_thumbnail_data(): array {
 
