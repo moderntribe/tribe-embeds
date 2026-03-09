@@ -102,7 +102,7 @@ final class Wistia extends Provider {
 	}
 
 	public function uses_inline_embed(): bool {
-		return true;
+		return false;
 	}
 
 	protected function set_video_id(): string {
