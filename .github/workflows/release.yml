@@ -32,7 +32,7 @@ jobs:
           composer install --no-dev
           composer dump-autoload
       - name: NPM Setup
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
           node-version-file: "${{ env.BUILD_FOLDER }}/.nvmrc"
           cache: 'npm'
@@ -48,7 +48,7 @@ jobs:
       - name: Configure WP-CLI dist-archive-command
         run: |
           cd ${{ env.BUILD_FOLDER }}
-          wp package install wp-cli/dist-archive-command
+          wp package install wp-cli/dist-archive-command:^3.1
       - name: Build Plugin Zip
         run: |
           wp dist-archive ${{ env.BUILD_FOLDER }} --plugin-dirname=${{ env.PLUGIN_SLUG }}
