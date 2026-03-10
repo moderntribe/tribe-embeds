@@ -17,7 +17,7 @@ jobs:
         uses: shivammathur/setup-php@2.22.0
         with:
           tools: composer, wp
-          php-version: 8.0
+          php-version: 8.3
 
       - name: Checkout Repo
         uses: actions/checkout@v3
