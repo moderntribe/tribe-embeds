@@ -114,7 +114,7 @@ Get image sizes for a provider
 
 - **Signature:** `apply_filters( 'tribe_embeds_image_sizes', $by_provider, $provider_class );`
 - **Args:**
-    - `$by_provider` — list of image sizes `tribe_embeds_image_sizes_<slug>`
+    - `$by_provider` — list of image sizes `tribe_embeds_image_sizes`
     - `$provider_class` — current provider class
 
 #### `tribe_embeds_provider_classes`
