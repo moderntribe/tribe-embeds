@@ -63,7 +63,7 @@ final class YouTube extends Provider {
 		}
 
 		// return the thumbnail urls.
-		return apply_filters( 'tribe-embed_youtube_video_thumbnail_data', $image_data, $this->get_video_id() );
+		return apply_filters( 'tribe_embed_youtube_video_thumbnail_data', $image_data, $this->get_video_id() );
 	}
 
 	protected function set_video_id(): string {

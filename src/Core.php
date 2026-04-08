@@ -17,7 +17,7 @@ use Tribe\Tribe_Embed\Util\Url_Parser;
  */
 final class Core {
 
-	public const VERSION     = '1.1.1';
+	public const VERSION     = '2.0.0';
 	public const PLUGIN_NAME = 'tribe-embed';
 
 	private Provider_Factory|null $factory  = null;

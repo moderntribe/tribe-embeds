@@ -44,26 +44,6 @@ These are the **public** extension points intended for themes/plugins to customi
 
 ### Filters
 
-#### `tribe-embeds_video_provider`
-Choose/override the Provider instance for a given embed URL.
-
-- **Signature:** `apply_filters( 'tribe-embeds_video_provider', $provider, $video_url_data, $block )`
-- **Args:**
-    - `$provider` — default or previously resolved provider instance (or `null`)
-    - `$video_url_data` — result of `parse_url()` for the video URL
-    - `$block` — full Gutenberg block array (name, attributes, innerBlocks, etc.)
-- **Return:** A `Provider` instance or `null` to skip.
-- **Example:**
-```php
-add_filter( 'tribe-embeds_video_provider', function ( $provider, $video_url_data, $block ) {
-  // Force our custom provider for a specific host or path
-  if ( isset( $video_url_data['host'] ) && $video_url_data['host'] === 'videos.example.com' ) {
-      return new \Tribe\Tribe_Embed\Providers\Example_Provider( $video_url_data );
-  }
-  return $provider;
-}, 10, 3 );
-```
-
 #### `tribe-embeds_allowed_provider_hosts`
 
 Expand or restrict the whitelist of hostnames that can be handled by built-in or custom providers.
@@ -145,11 +125,11 @@ Allow external override of provider class list
 - **Args:**
     - `$provider_classes` — list of existing providers classes
 
-#### `tribe-embed_<video-provider>_video_thumbnail_url`
+#### `tribe_embed_<video-provider>_video_thumbnail_url`
 
-Allows to adjust image data for each provider. Use slug instead of `<video-provider>` e.g `tribe-embed_wistia_video_thumbnail_url`
+Allows adjusting image data for each provider. Use slug instead of `<video-provider>` e.g `tribe_embed_wistia_video_thumbnail_url`
 
-- **Signature:** `apply_filters( 'tribe-embed_wistia_video_thumbnail_url', $image_data, $video_id )`
+- **Signature:** `apply_filters( 'tribe_embed_wistia_video_thumbnail_url', $image_data, $video_id )`
 - **Args:**
     - `$image_data` — Thumbnail image data
     - `$video_id` — current video id
@@ -157,7 +137,7 @@ Allows to adjust image data for each provider. Use slug instead of `<video-provi
 
 ####  `tribe_embeds_facade_html`
 
-Fires and action to which the new block markup is added too.
+Fires an action with the new block markup attached.
 
 - **Signature:** `apply_filters( 'tribe_embeds_facade_html', $facade_html, $provider, $block, $html )`
 - **Args:**

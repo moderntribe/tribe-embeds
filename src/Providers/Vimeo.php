@@ -58,7 +58,7 @@ final class Vimeo extends Provider {
 		}
 
 		// return the url.
-		return apply_filters( 'tribe-embed_vimeo_video_thumbnail_url', $image_data, $this->get_video_id() );
+		return apply_filters( 'tribe_embed_vimeo_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
 	protected function get_video_pictures(): array {

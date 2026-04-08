@@ -70,6 +70,7 @@ final class Wistia extends Provider {
 						], $image_url );
 						break;
 					case 'thumbnail_320_url':
+					default:
 						$image_url = add_query_arg( [
 							'image_crop_resized' => '320x260',
 						], $image_url );
@@ -92,13 +93,8 @@ final class Wistia extends Provider {
 			set_transient( 'tribe-embed_' . $this->get_video_id(), $image_data, DAY_IN_SECONDS );
 		}
 
-		// Prevent edge case when `$image_data` may have boolean value
-		if ( ! is_array( $image_data ) || empty( $image_data ) ) {
-			$image_data = [];
-		}
-
 		// return the url.
-		return apply_filters( 'tribe-embed_wistia_video_thumbnail_url', $image_data, $this->get_video_id() );
+		return apply_filters( 'tribe_embed_wistia_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
 	public function uses_inline_embed(): bool {

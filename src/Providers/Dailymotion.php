@@ -82,7 +82,7 @@ final class Dailymotion extends Provider {
 		}
 
 		// return the url.
-		return apply_filters( 'tribe-embed_dailymotion_video_thumbnail_url', $image_data, $this->get_video_id() );
+		return apply_filters( 'tribe_embed_dailymotion_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
 	protected function set_video_id(): string {
