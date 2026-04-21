@@ -48,7 +48,7 @@ class Settings_Page {
 	public function render_page(): void {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'Tribe Embeds – Vimeo Auth', 'tribe-embeds' ); ?></h1>
+			<h1><?php esc_html_e( 'Tribe Embeds Settings', 'tribe-embeds' ); ?></h1>
 
 			<form method="post" action="options.php">
 				<?php
