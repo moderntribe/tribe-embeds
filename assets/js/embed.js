@@ -38,6 +38,28 @@ function createCaptionEl( caption ) {
 }
 
 /**
+ * Configure and trigger play for <wistia-player> (Aurora web component).
+ * Uses the element's autoplay attribute and api-ready event; window._wq does not apply.
+ * See https://docs.wistia.com/docs/player-attributes-and-properties#autoplay
+ * and https://docs.wistia.com/docs/player-events
+ *
+ * @param {Element} playerEl The <wistia-player> DOM element (in the document).
+ */
+function playWistiaPlayer( playerEl ) {
+	if ( ! playerEl || playerEl.tagName !== 'WISTIA-PLAYER' ) return;
+	playerEl.setAttribute( 'autoplay', '' );
+	playerEl.addEventListener(
+		'api-ready',
+		() => {
+			if ( typeof playerEl.play === 'function' ) {
+				playerEl.play();
+			}
+		},
+		{ once: true }
+	);
+}
+
+/**
  * Setup event handlers
  *
  * @param {Element} embed
@@ -53,6 +75,10 @@ function setupEventHandlers( embed, template ) {
 
 	if ( clickEls.length === 0 ) return;
 
+	const embedContent = template.content.children[ 0 ];
+	const isWistia =
+		embedContent && embedContent.querySelector( 'wistia-player' );
+
 	// loop through each click event - play button and thumbnail.
 	clickEls.forEach( ( clickEl ) => {
 		// when the element is clicked.
@@ -63,6 +89,14 @@ function setupEventHandlers( embed, template ) {
 			// grab just the first child of the template - this is the figure block element which wraps the iframe.
 			const content = contentOuter.children[ 0 ];
 
+			// Wistia: set autoplay on <wistia-player> in the clone so it plays once injected (web component uses attributes, not _wq).
+			if ( isWistia ) {
+				const playerInClone = content.querySelector( 'wistia-player' );
+				if ( playerInClone ) {
+					playerInClone.setAttribute( 'autoplay', '' );
+				}
+			}
+
 			// add the iframe embed content before the embed wrapper.
 			embed.before( content );
 
@@ -71,6 +105,14 @@ function setupEventHandlers( embed, template ) {
 
 			// remove the template item which holds the iframe.
 			template.remove();
+
+			// Wistia: ensure play when API is ready (handles async script load / custom element upgrade).
+			if ( isWistia ) {
+				const playerEl = content.querySelector( 'wistia-player' );
+				if ( playerEl ) {
+					playWistiaPlayer( playerEl );
+				}
+			}
 		} );
 	} );
 }
@@ -81,15 +123,24 @@ function setupEventHandlers( embed, template ) {
 function updateEmbeds() {
 	embedBlocks.forEach( ( embed ) => {
 		// get the associated template element which holds the embed code.
-		// it is the next element after the wrapper.
+		// it is the next element after the wrapper (only used for providers that use template, e.g. YouTube and Wistia).
 		const template = embed.nextElementSibling;
+		if ( ! template || template.tagName !== 'TEMPLATE' ) {
+			return;
+		}
 
-		const iframe = template.content.children[ 0 ].querySelector( 'iframe' );
-		setIframeAttributes( iframe );
+		const embedContent = template.content.children[ 0 ];
+		if ( ! embedContent ) {
+			return;
+		}
 
-		// get the first child of the figure and add after tumbnail if present
-		const caption =
-			template.content.children[ 0 ].querySelector( 'figcaption' );
+		const iframe = embedContent.querySelector( 'iframe' );
+		if ( iframe ) {
+			setIframeAttributes( iframe );
+		}
+
+		// get the first child of the figure and add after thumbnail if present
+		const caption = embedContent.querySelector( 'figcaption' );
 
 		if ( caption ) {
 			const captionEl = createCaptionEl( caption );

@@ -4,7 +4,8 @@ namespace Tribe\Tribe_Embed\Admin;
 
 class Settings_Page {
 
-	public const VIMEO_TOKEN = 'vimeo_access_token';
+	public const VIMEO_TOKEN  = 'vimeo_access_token';
+	public const WISTIA_TOKEN = 'wistia_api_key';
 
 	public function __construct() {
 		add_action( 'admin_menu', [ $this, 'add_menu' ] );
@@ -31,6 +32,12 @@ class Settings_Page {
 		register_setting(
 			'tribe_embeds_settings',
 			'tribe_embeds_vimeo_access_token',
+			[ 'sanitize_callback' => 'sanitize_text_field' ]
+		);
+
+		register_setting(
+			'tribe_embeds_settings',
+			'tribe_embeds_wistia_api_key',
 			[ 'sanitize_callback' => 'sanitize_text_field' ]
 		);
 	}
@@ -62,6 +69,19 @@ class Settings_Page {
 							/>
 						</td>
 					</tr>
+					<tr valign="top">
+						<th scope="row">
+							<label for="tribe_embeds_wistia_api_key"><?php esc_html_e( 'Wistia API key', 'tribe-embeds' ); ?></label>
+						</th>
+						<td>
+							<input type="password"
+								   id="tribe_embeds_wistia_api_key"
+								   name="tribe_embeds_wistia_api_key"
+								   value="<?php echo esc_attr( get_option( 'tribe_embeds_wistia_api_key' ) ); ?>"
+								   class="regular-text"
+							/>
+						</td>
+					</tr>
 				</table>
 				<?php submit_button(); ?>
 			</form>
@@ -74,7 +94,8 @@ class Settings_Page {
 	 */
 	public static function get_stored_settings(): array {
 		return [
-			self::VIMEO_TOKEN => get_option( 'tribe_embeds_vimeo_access_token', '' ),
+			self::VIMEO_TOKEN  => get_option( 'tribe_embeds_vimeo_access_token', '' ),
+			self::WISTIA_TOKEN => get_option( 'tribe_embeds_wistia_api_key', '' ),
 		];
 	}
 

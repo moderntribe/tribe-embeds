@@ -20,7 +20,7 @@ final class YouTube extends Provider {
 	];
 
 	/**
-	 * Accepts a video id and returns an array of thumbnail data
+	 * Accepts a video id and returns an array of thumbnail data.
 	 */
 	public function get_thumbnail_data(): array {
 
@@ -63,7 +63,7 @@ final class YouTube extends Provider {
 		}
 
 		// return the thumbnail urls.
-		return apply_filters( 'tribe-embed_youtube_video_thumbnail_data', $image_data, $this->get_video_id() );
+		return apply_filters( 'tribe_embed_youtube_video_thumbnail_data', $image_data, $this->get_video_id() );
 	}
 
 	protected function set_video_id(): string {
@@ -72,6 +72,22 @@ final class YouTube extends Provider {
 			// for standard youtube URLs
 			case 'www.youtube.com':
 			case 'youtube.com':
+				// parse the query part of the URL into its arguments.
+				if ( ! empty( $this->video_url['path'] ) && str_starts_with( $this->video_url['path'], '/shorts/' ) ) {
+					// Extract video ID from /shorts/VIDEO_ID path
+					$path_parts = explode( '/', trim( $this->video_url['path'], '/' ) );
+					if ( count( $path_parts ) >= 2 && $path_parts[0] === 'shorts' ) {
+						return $path_parts[1];
+					}
+
+					return '';
+				}
+
+				// Handle standard YouTube URLs with query parameters
+				if ( empty( $this->video_url['query'] ) ) {
+					return '';
+				}
+
 				// parse the query part of the URL into its arguments.
 				parse_str( $this->video_url['query'], $video_url_query_args );
 
@@ -83,9 +99,6 @@ final class YouTube extends Provider {
 				// set the video id to the v query arg.
 				return $video_url_query_args['v'];
 
-				break;
-
-			// for youtube short urls.
 			case 'youtu.be':
 				// if we have a path.
 				if ( empty( $this->video_url['path'] ) ) {
@@ -94,9 +107,9 @@ final class YouTube extends Provider {
 
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
-
-				break;
 		}
+
+		return '';
 	}
 
 }

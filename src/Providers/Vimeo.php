@@ -2,19 +2,20 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
-use Tribe\Tribe_Embed\Admin\Settings_Page;
+use Tribe\Tribe_Embed\Admin\Credentials;
 
 final class Vimeo extends Provider {
 
 	public const BASE_URL = 'https://api.vimeo.com/videos/%s/pictures';
 
 	public const ALLOWED_HOSTS = [
+		'player.vimeo.com',
 		'www.vimeo.com',
 		'vimeo.com',
 	];
 
 	/**
-	 * Return the vimeo video thumbnail urls.
+	 * Return the Vimeo video thumbnail URLs.
 	 */
 	public function get_thumbnail_data(): array {
 
@@ -57,7 +58,7 @@ final class Vimeo extends Provider {
 		}
 
 		// return the url.
-		return apply_filters( 'tribe-embed_vimeo_video_thumbnail_url', $image_data, $this->get_video_id() );
+		return apply_filters( 'tribe_embed_vimeo_video_thumbnail_url', $image_data, $this->get_video_id() );
 	}
 
 	protected function get_video_pictures(): array {
@@ -78,8 +79,8 @@ final class Vimeo extends Provider {
 			]
 		);
 
-		// if the request to the hi res image errors or returns anything other than a http 200 response code.
-		if ( ( is_wp_error( $video_details )) && ( 200 !== wp_remote_retrieve_response_code( $video_details ) ) ) {
+		// if the request to the hi-res image errors or returns anything other than a http 200 response code.
+		if ( is_wp_error( $video_details ) || 200 !== wp_remote_retrieve_response_code( $video_details ) ) {
 			return [];
 		}
 
@@ -116,23 +117,16 @@ final class Vimeo extends Provider {
 				// remove the preceeding slash.
 				return str_replace( '/', '', $this->video_url['path'] );
 
+			case 'player.vimeo.com':
+				return str_replace( '/video/', '', $this->video_url['path'] );
+
 			default:
 				return '';
 		}
 	}
 
 	protected function get_token(): string {
-		if ( defined( 'VIMEO_ACCESS_TOKEN' ) && ! empty( VIMEO_ACCESS_TOKEN ) ) {
-			return VIMEO_ACCESS_TOKEN;
-		}
-
-		$settings = Settings_Page::get_stored_settings();
-
-		if ( ! empty( $settings[ Settings_Page::VIMEO_TOKEN ] ) ) {
-			return $settings[ Settings_Page::VIMEO_TOKEN ];
-		}
-
-		return '';
+		return Credentials::get_vimeo_token();
 	}
 
 }
