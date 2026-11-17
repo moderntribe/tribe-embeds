@@ -1,1 +1,18 @@
 @import "./test/test.pcss";
+
+/*
+ * The facade markup is rendered by the same PHP/templates as the front end and styled by style.pcss
+ * (loaded into the editor content iframe). These rules only adapt it to the editor.
+ */
+.tribe-embed-editor {
+	margin-block: 0;
+}
+
+/* Clicks fall through to the block so it can be selected. */
+.tribe-embed-editor__preview {
+	pointer-events: none;
+}
+
+.tribe-embed-editor__preview .tribe-embed {
+	margin: 0;
+}

@@ -2,84 +2,92 @@
 
 namespace Tribe\Tribe_Embed\Util;
 
-use Tribe\Tribe_Embed\Providers\Provider_Factory;
-
 /**
- * Handles render_block filter.
- * Decides whether to replace core/embed with facade.
+ * Replaces the output of `core/embed` blocks with a facade.
  */
 final class Block_Filter {
 
-	private Url_Parser $url_parser;
-
-	// @phpstan-ignore-next-line
-	private Provider_Factory $factory;
-	private Thumbnail_Service $thumbs;
-	private Facade_Builder $facade;
-	private bool $hooks_added = false;
-
 	public function __construct(
-		Url_Parser $url_parser,
-		Provider_Factory $factory,
-		Thumbnail_Service $thumbs,
-		Facade_Builder $facade
+		private Url_Parser $url_parser,
+		private Thumbnail_Service $thumbnail_service,
+		private Facade_Builder $facade_builder,
+		private Assets $assets,
+		private Hooks $hooks
 	) {
-		$this->url_parser = $url_parser;
-		$this->factory    = $factory;
-		$this->thumbs     = $thumbs;
-		$this->facade     = $facade;
 	}
 
-	/** Attach filter once */
 	public function register_hooks(): void {
-		if ( $this->hooks_added ) {
-			return;
-		}
 		add_filter( 'render_block', [ $this, 'filter_render_block' ], 10, 2 );
-		$this->hooks_added = true;
 	}
 
 	/**
-	 * Filter callback for render_block
-	 * - Only processes core/embed blocks
-	 * - Provider may render fully or fallback to facade
+	 * Filter callback for render_block. Only `core/embed` blocks with a supported video are changed.
 	 *
-	 * @param string $html  Original block HTML
-	 * @param array  $block Block data
+	 * @param string              $html  Original block HTML.
+	 * @param array<string,mixed> $block Block data.
 	 */
 	public function filter_render_block( string $html, array $block ): string {
-		if ( ! isset( $block['blockName'] ) || $block['blockName'] !== 'core/embed' ) {
+		if ( ( $block['blockName'] ?? '' ) !== 'core/embed' ) {
 			return $html;
 		}
 
-		$attrs = (array) ($block['attrs'] ?? []);
-		$url   = isset( $attrs['url'] ) && is_string( $attrs['url'] ) ? $attrs['url'] : '';
-		if ( $url === '' ) {
+		// Feed readers can't run the play script, so they keep the original embed markup.
+		if ( is_feed() ) {
 			return $html;
+		}
+
+		$facade_html = $this->build_facade( $block, $html );
+
+		if ( $facade_html === null ) {
+			return $html;
+		}
+
+		// Enqueue the script/style, and print the style now (once) so the facade is never unstyled.
+		$this->assets->enqueue_public_assets();
+
+		ob_start();
+		$this->assets->print_public_styles();
+		echo $facade_html;
+
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Build the facade for an embed block, without touching assets.
+	 *
+	 * @param array<string,mixed> $block         Block data (`attrs`, `innerHTML`).
+	 * @param string              $original_html Original rendered block HTML, passed to filters.
+	 *
+	 * @return string|null Facade HTML, or null when the URL is not a supported video or has no thumbnail.
+	 */
+	public function build_facade( array $block, string $original_html = '' ): ?string {
+		$url = (string) ( $block['attrs']['url'] ?? '' );
+
+		if ( $url === '' ) {
+			return null;
 		}
 
 		$video_url_data = $this->url_parser->parse_url( $url );
+
 		if ( $video_url_data === null ) {
-			return $html;
+			return null;
 		}
 
-		// Fallback: use thumbnails and facade
-		$result = $this->thumbs->resolve_thumb( $video_url_data, $block );
+		$video = $this->thumbnail_service->resolve_thumb( $video_url_data, $block );
 
-		if ( $result === null ) {
-			return $html;
+		if ( $video === null ) {
+			return null;
 		}
 
-		$facade_html = $this->facade->build( $result['thumb'], $block, $result['video_id'], $result['provider'] );
+		$facade_html = $this->facade_builder->build( $video['thumb'], $block, $video['video_id'], $video['provider'] );
 
-		/** Filter the facade HTML before output. */
-		$facade_html = (string) apply_filters( 'tribe_embeds_facade_html', $facade_html, $result['provider'], $block, $html );
-
-		ob_start();
-		wp_print_styles( 'tribe-embeds-styles' );
-		echo $facade_html;
-
-		return ob_get_clean();
+		return (string) $this->hooks->filter(
+			'tribe_embed_facade_html',
+			$facade_html,
+			$video['provider'],
+			$block,
+			$original_html
+		);
 	}
 
 }

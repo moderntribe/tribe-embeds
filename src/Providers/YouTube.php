@@ -2,9 +2,11 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
-final class YouTube extends Provider {
+final class YouTube extends Remote_Provider {
 
-	public const BASE_URL = 'https://img.youtube.com/vi/';
+	public const SLUG             = 'youtube';
+	public const THUMBNAIL_FILTER = 'tribe_embed_youtube_video_thumbnail_data';
+	public const BASE_URL         = 'https://img.youtube.com/vi/';
 
 	public const IMAGE_SIZES = [
 		'mqdefault',
@@ -14,102 +16,76 @@ final class YouTube extends Provider {
 	];
 
 	public const ALLOWED_HOSTS = [
-		'www.youtube.com',
 		'youtube.com',
 		'youtu.be',
 	];
 
 	/**
-	 * Accepts a video id and returns an array of thumbnail data.
+	 * Fixed [ width, height ] of each thumbnail, so the images do not have to be downloaded to be measured.
 	 */
-	public function get_thumbnail_data(): array {
+	private const IMAGE_DIMENSIONS = [
+		'mqdefault'     => [ 320, 180 ],
+		'hqdefault'     => [ 480, 360 ],
+		'sddefault'     => [ 640, 480 ],
+		'maxresdefault' => [ 1280, 720 ],
+	];
 
-		// if we have no video id.
-		if ( '' === $this->get_video_id() ) {
-			return [];
-		}
+	/** YouTube video IDs are 11 characters of [A-Za-z0-9_-]. */
+	private const ID_PATTERN = '/^[A-Za-z0-9_-]{11}$/';
 
-		// get the URL from the transient.
-		$image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
+	protected function fetch_thumbnail_data(): array {
+		$thumbnails = [];
 
-		// if we don't have a transient.
-		if ( false === $image_data ) {
-			// Initialize image data array
-			$image_data = [];
+		foreach ( self::IMAGE_SIZES as $size ) {
+			$url = self::BASE_URL . rawurlencode( $this->video_id ) . '/' . $size . '.jpg';
 
-			foreach ( self::IMAGE_SIZES as $resolution ) {
-				$location  = self::BASE_URL . esc_attr( $this->get_video_id() ) . '/' . $resolution . '.jpg';
-				$image_url = wp_remote_get( $location );
-
-				// if the request to the image doesn't error and returns a http 200 response code.
-				if ( ( is_wp_error( $image_url ) ) || ( 200 !== wp_remote_retrieve_response_code( $image_url ) ) ) {
-					continue;
-				}
-
-				$image_size = getimagesize( $location );
-				$width      = $image_size[0];
-				$height     = $image_size[1];
-
-				// set the image data
-				$image_data[ $resolution ] = [
-					'url'    => $location,
-					'width'  => $width,
-					'height' => $height,
-				];
+			// Only check the image exists: its size is known.
+			if ( ! $this->remote->url_exists( $url ) ) {
+				continue;
 			}
 
-			// set the transient, storing the image url.
-			set_transient( 'tribe-embed_' . $this->get_video_id(), $image_data, DAY_IN_SECONDS );
+			[ $width, $height ] = self::IMAGE_DIMENSIONS[ $size ];
+
+			$thumbnails[ $size ] = [
+				'url'    => $url,
+				'width'  => $width,
+				'height' => $height,
+			];
 		}
 
-		// return the thumbnail urls.
-		return apply_filters( 'tribe_embed_youtube_video_thumbnail_data', $image_data, $this->get_video_id() );
+		return $thumbnails;
 	}
 
 	protected function set_video_id(): string {
+		$path = (string) ( $this->video_url['path'] ?? '' );
 
-		switch ( $this->video_url['host'] ) {
-			// for standard youtube URLs
-			case 'www.youtube.com':
-			case 'youtube.com':
-				// parse the query part of the URL into its arguments.
-				if ( ! empty( $this->video_url['path'] ) && str_starts_with( $this->video_url['path'], '/shorts/' ) ) {
-					// Extract video ID from /shorts/VIDEO_ID path
-					$path_parts = explode( '/', trim( $this->video_url['path'], '/' ) );
-					if ( count( $path_parts ) >= 2 && $path_parts[0] === 'shorts' ) {
-						return $path_parts[1];
-					}
+		if ( $this->video_url['host'] === 'youtu.be' ) {
+			$segments = explode( '/', trim( $path, '/' ) );
 
-					return '';
-				}
-
-				// Handle standard YouTube URLs with query parameters
-				if ( empty( $this->video_url['query'] ) ) {
-					return '';
-				}
-
-				// parse the query part of the URL into its arguments.
-				parse_str( $this->video_url['query'], $video_url_query_args );
-
-				// if we cannot find a youtube video id.
-				if ( empty( $video_url_query_args['v'] ) ) {
-					return '';
-				}
-
-				// set the video id to the v query arg.
-				return $video_url_query_args['v'];
-
-			case 'youtu.be':
-				// if we have a path.
-				if ( empty( $this->video_url['path'] ) ) {
-					return '';
-				}
-
-				// remove the preceeding slash.
-				return str_replace( '/', '', $this->video_url['path'] );
+			return $this->valid_video_id( $segments[0], self::ID_PATTERN );
 		}
 
-		return '';
+		return $this->get_video_id_from_youtube_url( $path );
+	}
+
+	/**
+	 * The ID of a `youtube.com/shorts/ID` or `youtube.com/watch?v=ID` URL.
+	 */
+	private function get_video_id_from_youtube_url( string $path ): string {
+		if ( str_starts_with( $path, '/shorts/' ) ) {
+			$segments = explode( '/', trim( $path, '/' ) );
+
+			return $this->valid_video_id( $segments[1] ?? '', self::ID_PATTERN );
+		}
+
+		parse_str( (string) ( $this->video_url['query'] ?? '' ), $query );
+
+		// `v` is missing, or an array for `?v[]=x`.
+		if ( ! isset( $query['v'] ) || ! is_string( $query['v'] ) ) {
+			return '';
+		}
+
+		return $this->valid_video_id( $query['v'], self::ID_PATTERN );
 	}
 
 }

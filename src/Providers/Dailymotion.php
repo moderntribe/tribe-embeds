@@ -2,12 +2,13 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
-final class Dailymotion extends Provider {
+final class Dailymotion extends Remote_Provider {
 
-	public const BASE_URL = 'https://api.dailymotion.com/video/';
+	public const SLUG             = 'dailymotion';
+	public const THUMBNAIL_FILTER = 'tribe_embed_dailymotion_video_thumbnail_url';
+	public const BASE_URL         = 'https://api.dailymotion.com/video/';
 
 	// API docs: https://developers.dailymotion.com/api/#video-fields
-	// How many images do we want to retrieve realistically?
 	public const IMAGE_SIZES = [
 		'thumbnail_60_url',
 		'thumbnail_120_url',
@@ -20,94 +21,67 @@ final class Dailymotion extends Provider {
 	];
 
 	public const ALLOWED_HOSTS = [
-		'www.dailymotion.com',
 		'dailymotion.com',
 		'dai.ly',
 	];
 
-	/**
-	 * Return the Dailymotion video thumbnail URLs.
-	 */
-	public function get_thumbnail_data(): array {
+	private const ID_PATTERN = '/^[A-Za-z0-9]+$/';
 
-		// if we have no video id.
-		if ( '' === $this->get_video_id() ) {
+	protected function fetch_thumbnail_data(): array {
+		// One request returns every thumbnail URL.
+		$video = $this->remote->get_json(
+			self::BASE_URL . rawurlencode( $this->video_id ) . '?fields=' . implode( ',', self::IMAGE_SIZES )
+		);
+
+		if ( $video === null ) {
 			return [];
 		}
 
-		// get the URL from the transient.
-		$image_data = get_transient( 'tribe-embed_' . $this->get_video_id() );
+		$thumbnails = [];
 
-		// if we don't have a transient.
-		if ( false === $image_data ) {
-			$image_data = [];
+		foreach ( self::IMAGE_SIZES as $size ) {
+			$url = $video[ $size ] ?? '';
 
-			foreach ( self::IMAGE_SIZES as $resolution ) {
-				// get the video details from the api.
-				$video_details = wp_remote_get( self::BASE_URL . $this->get_video_id() . '?fields=' . $resolution );
-
-				// if the request to the image errors or returns anything other than a http 200 response code.
-				if ( is_wp_error( $video_details ) || 200 !== wp_remote_retrieve_response_code( $video_details ) ) {
-					return [];
-				}
-
-				// grab the body of the response.
-				$response_body = json_decode(
-					wp_remote_retrieve_body(
-						$video_details
-					)
-				);
-
-				if ( $response_body === null ) {
-					return [];
-				}
-
-				// get the image url from the json.
-				$image_url = $response_body->$resolution;
-
-				$image_size = getimagesize( $image_url );
-				$width      = $image_size[0];
-				$height     = $image_size[1];
-
-				// set the image data
-				$image_data[ $resolution ] = [
-					'url'    => $image_url,
-					'width'  => $width,
-					'height' => $height,
-				];
+			if ( ! is_string( $url ) || $url === '' ) {
+				continue;
 			}
 
-			// set the transient, storing the image url.
-			set_transient( 'tribe-embed_' . $this->get_video_id(), $image_data, DAY_IN_SECONDS );
+			$image = $this->remote->get_image_data( $url );
+
+			if ( $image === null ) {
+				continue;
+			}
+
+			$thumbnails[ $size ] = $image;
 		}
 
-		// return the url.
-		return apply_filters( 'tribe_embed_dailymotion_video_thumbnail_url', $image_data, $this->get_video_id() );
+		return $thumbnails;
 	}
 
 	protected function set_video_id(): string {
-		switch ( $this->video_url['host'] ) {
-			case 'www.dailymotion.com':
-			case 'dailymotion.com':
-				// if we have a path.
-				if ( empty( $this->video_url['path'] ) ) {
-					return '';
-				}
+		$path = trim( (string) ( $this->video_url['path'] ?? '' ), '/' );
 
-				// remove the preceeding slash.
-				return str_replace( '/video/', '', $this->video_url['path'] );
+		if ( $this->video_url['host'] === 'dai.ly' ) {
+			$segments = explode( '/', $path );
 
-			case 'dai.ly':
-				// if we have a path.
-				if ( empty( $this->video_url['path'] ) ) {
-					return '';
-				}
-
-				// remove the preceeding slash.
-				return str_replace( '/', '', $this->video_url['path'] );
+			return $this->valid_video_id( $segments[0], self::ID_PATTERN );
 		}
 
-		return '';
+		return $this->get_video_id_from_video_path( $path );
+	}
+
+	/**
+	 * The ID in `video/ID`. Older URLs append `_slug` to it.
+	 */
+	private function get_video_id_from_video_path( string $path ): string {
+		if ( ! str_starts_with( $path, 'video/' ) ) {
+			return '';
+		}
+
+		$segments = explode( '/', $path );
+		$id_parts = explode( '_', $segments[1] ?? '' );
+
+		return $this->valid_video_id( $id_parts[0], self::ID_PATTERN );
 	}
 
 }
