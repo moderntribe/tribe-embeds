@@ -4,7 +4,7 @@
  * Plugin Name:       Tribe Embed
  * Plugin URI:        https://github.com/moderntribe/tribe-embed
  * Description:       A Tribe Embed Plugin.
- * Version:           2.0.0
+ * Version:           2.1.0
  * Requires at least: 6.3
  * Requires PHP:      8.0
  * Author:            Modern Tribe
@@ -32,13 +32,8 @@ if ( ! defined( 'TRIBE_MP_VERSION' ) ) {
 
 register_activation_hook( __FILE__, [ Core::class, 'activate' ] );
 register_deactivation_hook( __FILE__, [ Core::class, 'deactivate' ] );
+register_uninstall_hook( __FILE__, [ Core::class, 'uninstall' ] );
 
 add_action( 'plugins_loaded', static function (): void {
-	$core = tribe_embed_core();
-	$core->register_hooks();
+	( new Core() )->register_hooks();
 } );
-
-function tribe_embed_core(): Core {
-	return Core::instance();
-}
-

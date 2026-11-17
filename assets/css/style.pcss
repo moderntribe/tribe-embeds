@@ -48,7 +48,18 @@
 	}
 
 	&:hover,
-	&:focus {
+	&:focus-visible {
 		opacity: var(--tribe-play-button-opacity--hover);
+	}
+
+	/* Double ring (inner light, outer dark) so the focus indicator shows on any thumbnail. */
+	&:focus-visible {
+		outline: 3px solid var(--tribe-play-button-focus-outline-color);
+		outline-offset: 3px;
+		box-shadow: 0 0 0 3px var(--tribe-play-button-focus-ring-color);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"name": "tribe-embed",
-	"version": "1.1.1",
+	"version": "2.1.0",
 	"description": "Tribe Embed",
 	"author": "Modern Tribe <admin@tri.be>",
 	"license": "GPL-2.0-or-later",
@@ -21,18 +21,18 @@
 		"not dead"
 	],
 	"engines": {
-		"node": "^18.16.0",
-		"npm": "^9.5.1"
+		"node": "^24.15.0",
+		"npm": "^11.0.0"
 	},
 	"main": "index.js",
 	"config": {
 		"assetsDir": "./assets"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^26.19.0",
-		"cssnano": "^6.0.1",
-		"postcss-import": "^15.1.0",
-		"postcss-preset-env": "^9.2.0"
+		"@wordpress/scripts": "^37.1.0",
+		"cssnano": "^9.9.0",
+		"postcss-import": "^17.0.1",
+		"postcss-preset-env": "^11.6.2"
 	},
 	"scripts": {
 		"start": "wp-scripts start",

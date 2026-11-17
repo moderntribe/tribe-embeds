@@ -2,57 +2,61 @@
 
 namespace Tribe\Tribe_Embed\Providers;
 
+use Tribe\Tribe_Embed\Admin\Credentials;
+use Tribe\Tribe_Embed\Util\Hooks;
+use Tribe\Tribe_Embed\Util\Remote_Client;
+
 /**
- * Resolves providers and exposes per-provider hooks.
+ * Finds the provider that handles a video URL.
  */
 final class Provider_Factory {
 
-	/** @var array<int, class-string> */
+	private const DEFAULT_PROVIDERS = [
+		YouTube::class,
+		Vimeo::class,
+		Dailymotion::class,
+		Wistia::class,
+	];
+
+	/** @var array<int,string> */
 	private array $provider_classes;
 
-	/**
-	 * @param array<int, class-string> $provider_classes Optional override list.
-	 */
-	public function __construct( array $provider_classes = [] ) {
-		$defaults = [
-			'\\Tribe\\Tribe_Embed\\Providers\\YouTube',
-			'\\Tribe\\Tribe_Embed\\Providers\\Vimeo',
-			'\\Tribe\\Tribe_Embed\\Providers\\Dailymotion',
-			'\\Tribe\\Tribe_Embed\\Providers\\Wistia',
-		];
+	public function __construct(
+		private Hooks $hooks,
+		private Remote_Client $remote,
+		private Thumbnail_Cache $cache,
+		private Credentials $credentials
+	) {
+		$classes = $this->hooks->filter( 'tribe_embed_provider_classes', self::DEFAULT_PROVIDERS );
 
-		/** Allow external override of provider class list */
-		$filtered = apply_filters( 'tribe_embeds_provider_classes', $provider_classes ?: $defaults );
-
-		$this->provider_classes = array_values( array_filter(
-			array_map( 'strval', (array) $filtered ),
-			static function ( string $class ): bool {
-				return class_exists( $class );
-			}
-		) );
+		$this->provider_classes = array_values(
+			array_filter( array_map( 'strval', (array) $classes ), 'class_exists' )
+		);
 	}
 
 	/**
-	 * Resolve provider instance or null.
+	 * Find the provider for a video URL.
 	 *
-	 * @param array<string,mixed> $video_url_data Parsed URL parts incl. 'host'
-	 * @param array<string,mixed> $block          Gutenberg block array
+	 * @param array<string,mixed> $video_url_data Parsed URL parts incl. 'host'.
+	 * @param array<string,mixed> $block          Gutenberg block array.
 	 */
-	public function resolve( array $video_url_data, array $block ): ?object {
-		/** Allow short-circuit with a ready-made provider instance */
-		$maybe = apply_filters( 'tribe_embeds_video_provider', null, $video_url_data, $block );
-		if ( is_object( $maybe ) ) {
-			return $maybe;
+	public function resolve( array $video_url_data, array $block ): ?Provider {
+		// Allow short-circuit with a ready-made provider instance.
+		$provider = $this->hooks->filter( 'tribe_embed_video_provider', null, $video_url_data, $block );
+
+		if ( $provider instanceof Provider ) {
+			return $provider;
 		}
 
-		/** Match by per-provider allowed hosts */
-		$host = strtolower( (string) ($video_url_data['host'] ?? '') );
+		$host = strtolower( (string) ( $video_url_data['host'] ?? '' ) );
 
-		if ( $host !== '' ) {
-			foreach ( $this->provider_classes as $class ) {
-				if ( in_array( $host, $this->allowed_hosts_for( $class ), true ) || $this->is_allowed_hosts_by_regex( $class, $host ) ) {
-					return $this->instantiate( $class, $video_url_data );
-				}
+		if ( $host === '' ) {
+			return null;
+		}
+
+		foreach ( $this->provider_classes as $class ) {
+			if ( $this->accepts_host( $class, $host ) ) {
+				return $this->create_provider( $class, $video_url_data );
 			}
 		}
 
@@ -60,104 +64,111 @@ final class Provider_Factory {
 	}
 
 	/**
-	 * Get allowed hosts for a provider (constant + filters).
+	 * Image sizes for a provider, adjustable with the `tribe_embed_image_sizes_{slug}` and
+	 * `tribe_embed_image_sizes` filters.
 	 *
-	 * Filters:
-	 * - tribe_embeds_allowed_provider_hosts_{slug}
-	 * - tribe_embeds_allowed_provider_hosts
-	 *
-	 * @return array<int,string> Lowercased hostnames.
+	 * @return array<int|string,mixed>
 	 */
-	public function allowed_hosts_for( string $provider_class ): array {
-		$global = $this->get_allowed_rules( $provider_class );
+	public function image_sizes_for( string $provider_class ): array {
+		$sizes = [];
 
-		return array_values( array_unique( array_map( 'strtolower', array_filter( $global, 'is_string' ) ) ) );
+		if ( is_subclass_of( $provider_class, Provider::class ) ) {
+			$sizes = $provider_class::IMAGE_SIZES;
+		}
+
+		$slug  = $this->get_slug( $provider_class );
+		$sizes = $this->hooks->filter( 'tribe_embed_image_sizes_' . $slug, $sizes, $provider_class );
+		$sizes = $this->hooks->filter( 'tribe_embed_image_sizes', $sizes, $provider_class );
+
+		return (array) $sizes;
 	}
 
-	public function is_allowed_hosts_by_regex( string $provider_class, string $host ): bool {
-		$global = $this->get_allowed_rules( $provider_class );
+	/**
+	 * A provider accepts a host that equals one of its hosts or is a subdomain of one.
+	 */
+	private function accepts_host( string $provider_class, string $host ): bool {
+		foreach ( $this->get_allowed_hosts( $provider_class ) as $allowed_host ) {
+			$allowed_host = strtolower( $allowed_host );
 
-		foreach ( $global as $pattern ) {
-			if ( ! preg_match( '/' . $pattern . '/i', $host ) ) {
-				continue;
+			if ( $host === $allowed_host || str_ends_with( $host, '.' . $allowed_host ) ) {
+				return true;
 			}
-
-			return true;
 		}
 
 		return false;
 	}
 
-	public function get_allowed_rules( string $provider_class ): array {
-		$base = [];
-
-		if ( defined( $provider_class . '::ALLOWED_HOSTS' ) ) {
-			/** @var array<int,string> $base */
-			$base = (array) $provider_class::ALLOWED_HOSTS;
-		}
-
-		$slug = $this->provider_slug( $provider_class );
-
-		$by_provider = apply_filters( 'tribe_embeds_allowed_provider_hosts_' . $slug, $base, $provider_class );
-
-		return apply_filters( 'tribe_embeds_allowed_provider_hosts', $by_provider, $provider_class );
-	}
-
 	/**
-	 * Get image sizes for a provider (constant + filters).
+	 * Hosts for a provider, adjustable with the `tribe_embed_allowed_provider_hosts_{slug}` and
+	 * `tribe_embed_allowed_provider_hosts` filters.
 	 *
-	 * Filters:
-	 * - tribe_embeds_image_sizes_{slug}
-	 * - tribe_embeds_image_sizes
+	 * @return array<int,string>
+	 */
+	private function get_allowed_hosts( string $provider_class ): array {
+		$hosts = [];
+
+		if ( is_subclass_of( $provider_class, Provider::class ) ) {
+			$hosts = $provider_class::ALLOWED_HOSTS;
+		}
+
+		$slug  = $this->get_slug( $provider_class );
+		$hosts = $this->hooks->filter( 'tribe_embed_allowed_provider_hosts_' . $slug, $hosts, $provider_class );
+		$hosts = $this->hooks->filter( 'tribe_embed_allowed_provider_hosts', $hosts, $provider_class );
+
+		return array_filter( (array) $hosts, 'is_string' );
+	}
+
+	/**
+	 * The provider's SLUG constant, or its lowercased class name without a "Provider" suffix.
+	 */
+	private function get_slug( string $provider_class ): string {
+		if ( is_subclass_of( $provider_class, Provider::class ) && $provider_class::SLUG !== '' ) {
+			return $provider_class::SLUG;
+		}
+
+		$class_name = strtolower( substr( strrchr( '\\' . $provider_class, '\\' ), 1 ) );
+		$slug       = sanitize_key( (string) preg_replace( '/_?provider$/', '', $class_name ) );
+
+		if ( $slug === '' ) {
+			return 'provider';
+		}
+
+		return $slug;
+	}
+
+	/**
+	 * @param array<string,mixed> $video_url_data
+	 */
+	private function create_provider( string $provider_class, array $video_url_data ): ?Provider {
+		$provider = match ( ltrim( $provider_class, '\\' ) ) {
+			YouTube::class     => new YouTube( $video_url_data, $this->remote, $this->cache ),
+			Dailymotion::class => new Dailymotion( $video_url_data, $this->remote, $this->cache ),
+			Vimeo::class       => new Vimeo( $video_url_data, $this->remote, $this->cache, $this->credentials ),
+			Wistia::class      => new Wistia( $video_url_data, $this->remote, $this->cache, $this->credentials ),
+			default            => null,
+		};
+
+		if ( $provider !== null ) {
+			return $provider;
+		}
+
+		return $this->create_custom_provider( $provider_class, $video_url_data );
+	}
+
+	/**
+	 * Providers added with the `tribe_embed_provider_classes` filter take the parsed URL only.
 	 *
-	 * @return array<string,mixed>
+	 * @param array<string,mixed> $video_url_data
 	 */
-	public function image_sizes_for( string $provider_class ): array {
-		$base = [];
-
-		if ( defined( $provider_class . '::IMAGE_SIZES' ) ) {
-			/** @var array<string,mixed> $base */
-			$base = (array) $provider_class::IMAGE_SIZES;
+	private function create_custom_provider( string $provider_class, array $video_url_data ): ?Provider {
+		if ( ! is_subclass_of( $provider_class, Provider::class ) ) {
+			return null;
 		}
 
-		$slug = $this->provider_slug( $provider_class );
-
-		$by_provider = apply_filters( 'tribe_embeds_image_sizes_' . $slug, $base, $provider_class );
-		$global      = apply_filters( 'tribe_embeds_image_sizes', $by_provider, $provider_class );
-
-		return (array) $global;
-	}
-
-	/**
-	 * Slug used in filter names.
-	 * Uses class SLUG constant if present; otherwise derived from class name.
-	 */
-	public function provider_slug( string $provider_class ): string {
-		if ( defined( $provider_class . '::SLUG' ) ) {
-			$slug = (string) $provider_class::SLUG;
-			if ( $slug !== '' ) {
-				return sanitize_key( $slug );
-			}
-		}
-
-		$base = strtolower( trim( (string) strrchr( '\\' . ltrim( $provider_class, '\\' ), '\\' ), '\\' ) );
-		$base = preg_replace( '/_provider$|provider$/', '', $base );
-
-		return sanitize_key( $base ?: 'provider' );
-	}
-
-	/**
-	 * Instantiate provider safely.
-	 */
-	private function instantiate( string $class, array $video_url_data ): ?object {
 		try {
-			return new $class( $video_url_data );
-		} catch ( \Throwable $e ) {
-			try {
-				return new $class();
-			} catch ( \Throwable ) {
-				return null;
-			}
+			return new $provider_class( $video_url_data );
+		} catch ( \Throwable ) {
+			return null;
 		}
 	}
 

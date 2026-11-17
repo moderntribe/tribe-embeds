@@ -3,29 +3,48 @@
 namespace Tribe\Tribe_Embed\Admin;
 
 /**
- * Central source for API credentials (env or stored settings).
- * Providers depend on this instead of Settings_Page directly.
+ * API credentials: a constant in wp-config.php wins over the value saved on the settings page.
  */
 final class Credentials {
 
-	public static function get_vimeo_token(): string {
-		if ( defined( 'VIMEO_ACCESS_TOKEN' ) && VIMEO_ACCESS_TOKEN !== '' ) {
-			return (string) VIMEO_ACCESS_TOKEN;
-		}
+	public const VIMEO_OPTION  = 'tribe_embed_vimeo_access_token';
+	public const WISTIA_OPTION = 'tribe_embed_wistia_api_key';
 
-		$settings = Settings_Page::get_stored_settings();
+	/**
+	 * Option names used before 2.1.0. They are read until the setting is saved under the current name.
+	 */
+	public const LEGACY_OPTIONS = [
+		self::VIMEO_OPTION  => 'tribe_embeds_vimeo_access_token',
+		self::WISTIA_OPTION => 'tribe_embeds_wistia_api_key',
+	];
 
-		return isset( $settings[ Settings_Page::VIMEO_TOKEN ] ) ? (string) $settings[ Settings_Page::VIMEO_TOKEN ] : '';
+	public function get_vimeo_token(): string {
+		return $this->get_token( 'VIMEO_ACCESS_TOKEN', self::VIMEO_OPTION );
 	}
 
-	public static function get_wistia_token(): string {
-		if ( defined( 'WISTIA_API_KEY' ) && WISTIA_API_KEY !== '' ) {
-			return (string) WISTIA_API_KEY;
+	public function get_wistia_token(): string {
+		return $this->get_token( 'WISTIA_API_KEY', self::WISTIA_OPTION );
+	}
+
+	/**
+	 * The value saved in the database for an option, ignoring constants.
+	 */
+	public function get_stored_value( string $option ): string {
+		$value = get_option( $option, false );
+
+		if ( $value === false ) {
+			$value = get_option( self::LEGACY_OPTIONS[ $option ], '' );
 		}
 
-		$settings = Settings_Page::get_stored_settings();
+		return (string) $value;
+	}
 
-		return isset( $settings[ Settings_Page::WISTIA_TOKEN ] ) ? (string) $settings[ Settings_Page::WISTIA_TOKEN ] : '';
+	private function get_token( string $constant, string $option ): string {
+		if ( defined( $constant ) && constant( $constant ) !== '' ) {
+			return (string) constant( $constant );
+		}
+
+		return $this->get_stored_value( $option );
 	}
 
 }

@@ -2,63 +2,72 @@
 
 namespace Tribe\Tribe_Embed\Util;
 
+use Tribe\Tribe_Embed\Providers\Provider;
 use Tribe\Tribe_Embed\Providers\Provider_Factory;
 
 /**
- * Resolves provider thumbnails for generic facades.
+ * Finds the provider for a video URL and gets its thumbnails.
  */
 final class Thumbnail_Service {
 
-	private \Tribe\Tribe_Embed\Providers\Provider_Factory $factory;
-
-	public function __construct( Provider_Factory $factory ) {
-		$this->factory = $factory;
+	public function __construct(
+		private Provider_Factory $factory,
+		private Hooks $hooks
+	) {
 	}
 
 	/**
-	 * Get provider, video id, and thumbnails.
+	 * Get the provider, video id and thumbnails of a video URL.
 	 *
-	 * @return array{provider:object, video_id:string, thumb:array<string,mixed>}|null
+	 * @param array<string,mixed> $video_url_data Parsed URL parts.
+	 * @param array<string,mixed> $block          The embed block.
+	 *
+	 * @return array{provider:\Tribe\Tribe_Embed\Providers\Provider, video_id:string, thumb:array<string,mixed>}|null
 	 */
 	public function resolve_thumb( array $video_url_data, array $block ): ?array {
 		$provider = $this->factory->resolve( $video_url_data, $block );
-		if ( ! is_object( $provider ) ) {
+
+		if ( $provider === null ) {
 			return null;
 		}
 
 		$video_id = $provider->get_video_id();
 
-		if ( ! $video_id ) {
+		if ( $video_id === '' ) {
 			return null;
 		}
 
-		$image_sizes = $this->factory->image_sizes_for( $provider::class );
+		$thumbnails = $this->get_thumbnails( $provider );
 
-		$thumb = $this->safe_get_thumbnail_data( $provider, $image_sizes );
-		if ( empty( $thumb ) ) {
+		if ( $thumbnails === [] ) {
 			return null;
 		}
 
 		return [
 			'provider' => $provider,
 			'video_id' => $video_id,
-			'thumb'    => $thumb,
+			'thumb'    => $thumbnails,
 		];
 	}
 
-	/** Call provider get_thumbnail_data and filter results */
-	private function safe_get_thumbnail_data( object $provider, array $image_sizes ): array {
-		if ( ! method_exists( $provider, 'get_thumbnail_data' ) ) {
-			return apply_filters( 'tribe_embeds_thumbnail_data', [], $provider, $image_sizes );
-		}
-
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function get_thumbnails( Provider $provider ): array {
 		try {
-			$data = $provider->get_thumbnail_data();
-		} catch ( \Throwable $e ) {
-			$data = [];
+			$thumbnails = $provider->get_thumbnail_data();
+		} catch ( \Throwable ) {
+			$thumbnails = [];
 		}
 
-		return apply_filters( 'tribe_embeds_thumbnail_data', is_array( $data ) ? $data : [], $provider, $image_sizes );
+		$image_sizes = $this->factory->image_sizes_for( $provider::class );
+		$thumbnails  = $this->hooks->filter( 'tribe_embed_thumbnail_data', $thumbnails, $provider, $image_sizes );
+
+		if ( ! is_array( $thumbnails ) ) {
+			return [];
+		}
+
+		return $thumbnails;
 	}
 
 }
