@@ -12,6 +12,7 @@ All notable changes to this project will be documented in this file.
 - Documentation moved from the readme into `docs/`; the readme is now a short install guide.
 
 ### Changed
+- GitHub Actions `Lint` workflow runs PHPCS, PHPStan, ESLint, Stylelint and the `package.json` lint on pull requests and on pushes to `main`. PHPStan no longer reports the WordPress stubs' `apply_filters` arity errors.
 - Internal restructuring: objects get their collaborators through their constructors instead of static calls. `Hooks`, `Remote_Client`, `Thumbnail_Cache` and `Credentials` are injected; the built-in providers take the remote client, cache and credentials; `Core` is a plain composition root, so `Core::instance()`, `tribe_embed_core()` and the service getters on `Core` are gone. Custom providers (`tribe_embed_provider_classes`) are unchanged: they still receive the parsed URL only.
 - Plugin data is removed through `register_uninstall_hook()` (`Core::uninstall()`) instead of a separate `uninstall.php`.
 - Host rules (`ALLOWED_HOSTS`) are plain hostnames that also match subdomains, so `m.youtube.com` and similar URLs are recognised.

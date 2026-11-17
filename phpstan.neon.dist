@@ -14,3 +14,5 @@ parameters:
 		- '#^Constant TRIBE_MP_PATH not found.$#'
 		- '#^Constant TRIBE_MP_URL not found.$#'
 		- '#^Constant TRIBE_MP_VERSION not found.$#'
+		# The WordPress stubs declare apply_filters( $hook_name, $value ) without the variadic $args.
+		- '#^Function apply_filters invoked with \d+ parameters, 2 required\.$#'

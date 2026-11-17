@@ -28,6 +28,8 @@ npm run lint:css
 npm run lint:pkg-json
 ```
 
+The same checks run on every pull request and on pushes to `main` in the `Lint` workflow (`.github/workflows/lint.yml`): one job for PHPCS and PHPStan, one for ESLint, Stylelint and the `package.json` lint.
+
 ## Source layout
 
 | Path | Contents |
